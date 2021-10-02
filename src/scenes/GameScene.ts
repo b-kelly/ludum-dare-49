@@ -197,6 +197,8 @@ export class GameScene extends Phaser.Scene {
                 }
             }
         }
+
+        this.updateChrome();
     }
 
     private handleRobotDeath(reason: PlayerDeathReason) {
@@ -216,7 +218,7 @@ export class GameScene extends Phaser.Scene {
                 Phaser.Input.Keyboard.KeyCodes.SPACE
             ),
         };
-        this.controls = new ControlsHandler(controls);
+        this.controls = new ControlsHandler(this, controls);
     }
 
     private updateChrome() {
