@@ -49,14 +49,14 @@ module.exports = (_, argv) => {
                 CANVAS_RENDERER: JSON.stringify(true),
                 WEBGL_RENDERER: JSON.stringify(true),
             }),
-            // new CopyWebpackPlugin({
-            //     patterns: [
-            //         {
-            //             from: "src/assets",
-            //             to: "assets",
-            //         },
-            //     ],
-            // }),
+            new CopyWebpackPlugin({
+                patterns: [
+                    {
+                        from: "src/assets",
+                        to: "assets",
+                    },
+                ],
+            }),
         ],
     };
 };
