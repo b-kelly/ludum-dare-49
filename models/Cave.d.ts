@@ -8,6 +8,7 @@ export declare enum CellState {
 export declare class Cave {
     private _map;
     private readonly _size;
+    private readonly _startLocation;
     private readonly chanceToStartOpen;
     private readonly chanceToGenerateResource;
     private readonly requiredNeighborsForLife;
@@ -17,6 +18,10 @@ export declare class Cave {
     get size(): {
         width: number;
         height: number;
+    };
+    get startLocation(): {
+        x: number;
+        y: number;
     };
     constructor(width: number, height: number);
     /** Completely generates a cave */
@@ -29,4 +34,6 @@ export declare class Cave {
     private runSimulationStep;
     /** Mark all the cavern walls in place, placing resources on them if able */
     private markWallsAndPlaceResources;
+    /** Finds an open space near the bottom middle of the map for the player to spawn */
+    private findSuitableStartLocation;
 }
