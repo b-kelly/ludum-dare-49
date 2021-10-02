@@ -3,7 +3,7 @@ import { Cave } from "../models/Cave";
 import { displayMap, displayMoveControls } from "../models/Chrome";
 import { Robot } from "../models/Robot";
 import { Asset, Controls, MoveDirection } from "../models/shared";
-import { World } from "../models/World";
+import { PlayerDeathReason, World } from "../models/World";
 
 export class GameScene extends Phaser.Scene {
     private robot: Robot;
@@ -96,7 +96,11 @@ export class GameScene extends Phaser.Scene {
 
         if (!this.currentlyDigging && this.controls.dig.isDown) {
             const results = this.world.dig(this.robot.pState);
-            console.log(this.controls.dig.repeats, results);
+            console.log(results);
+            if (results.playerDeathReason !== PlayerDeathReason.None) {
+                // TODO
+                console.log("You died!");
+            }
         }
 
         this.currentlyDigging = this.controls.dig.isDown;

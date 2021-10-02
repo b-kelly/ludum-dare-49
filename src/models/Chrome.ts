@@ -60,13 +60,15 @@ export function displayMoveControls(controls: Controls): void {
         });
     }
 
-    Object.keys(controls).forEach((key: keyof Controls) => {
+    Object.keys(controls).forEach((control: keyof Controls) => {
         const element = document.querySelector<HTMLElement>(
-            `.js-move-control-${key}`
+            `.js-move-control-${control}`
         );
         if (!element) {
             return;
         }
-        element.innerText = reverseKeycodeMapping[controls[key].keyCode];
+
+        const keyName = reverseKeycodeMapping[controls[control].keyCode];
+        element.innerText = `${control}: ${keyName}`;
     });
 }

@@ -12,15 +12,18 @@ export interface DigResults {
     collectedResource: boolean;
     triggeredCollapse: boolean;
     playerDeathReason: PlayerDeathReason;
+    spawnedTiles: number;
 }
 
 const EMPTY_RESULTS = (): DigResults => ({
     collectedResource: false,
     triggeredCollapse: false,
-    playerDeathReason: null,
+    playerDeathReason: PlayerDeathReason.None,
+    spawnedTiles: 0,
 });
 
 const MAX_STABILITY = 8;
+const INSTABILITY_MODIFIER = 0.5; // each point of instability has a 50% chance of triggering collapse
 
 export class World extends Phaser.Tilemaps.Tilemap {
     get primaryLayer(): Phaser.Tilemaps.TilemapLayer {
@@ -86,43 +89,47 @@ export class World extends Phaser.Tilemaps.Tilemap {
             return empty;
         }
 
+        // process side effects
+        const results = this.digSideEffects(targetTile, originTile);
+
         // set the tile to be empty
         this.fill(CellState.Open, newTileCoords.x, newTileCoords.y, 1, 1);
 
-        // process side effects
-        return this.digSideEffects(targetTile, originTile);
+        return results;
     }
 
     private digSideEffects(
-        tile: Phaser.Tilemaps.Tile,
-        originTile: Phaser.Tilemaps.Tile
+        target: Phaser.Tilemaps.Tile,
+        origin: Phaser.Tilemaps.Tile
     ): DigResults {
         const results = EMPTY_RESULTS();
+        results.collectedResource = target.index === CellState.Resource;
 
-        if (tile.index === CellState.Resource) {
-            results.collectedResource = true;
-        }
-
-        const stability = this.getTileStability(tile);
+        const instability = this.getTileInstability(target);
 
         // no stability, no change
-        if (stability === -1) {
+        if (instability === -1) {
             return results;
         }
 
         // the lower the stability of the tile, the higher the chance of a collapse
         results.triggeredCollapse =
-            Math.floor(Math.random() * (MAX_STABILITY - stability)) > 0;
+            Math.floor(Math.random() * (instability * INSTABILITY_MODIFIER)) >
+            0;
         if (results.triggeredCollapse) {
             // CAAAAAVE IIIINNNNN!
-            this.collapseFromTile(tile, stability, originTile);
+            const collapse = this.collapseFromTile(target, instability, origin);
+            results.spawnedTiles = collapse.count;
+            results.playerDeathReason = collapse.spawnedOnOrigin
+                ? PlayerDeathReason.Collapse
+                : PlayerDeathReason.None;
         }
 
         return results;
     }
 
-    /** Gets a tiles stability rating, from 0 to 8 (or -1 for no stability) */
-    private getTileStability(tile: Phaser.Tilemaps.Tile) {
+    /** Gets a tiles instability rating, from 0 (stable) to 8 (unstable) (or -1 for no stability) */
+    private getTileInstability(tile: Phaser.Tilemaps.Tile) {
         // open tiles don't have a stability rating
         if (tile.index === CellState.Open) {
             return -1;
@@ -136,18 +143,18 @@ export class World extends Phaser.Tilemaps.Tilemap {
         );
 
         // subtract one since we don't count the tile itself
-        return stabilityRating - 1;
+        return MAX_STABILITY - stabilityRating - 1;
     }
 
     /** Spawns between 0 and stability filled tiles around tile */
     private collapseFromTile(
         tile: Phaser.Tilemaps.Tile,
-        stability: number,
+        instability: number,
         originTile: Phaser.Tilemaps.Tile
     ): { count: number; spawnedOnOrigin: boolean } {
-        const maxSpawnCount = MAX_STABILITY - stability;
+        const maxSpawnCount = instability;
 
-        if (!maxSpawnCount || stability === -1) {
+        if (!maxSpawnCount || instability === -1) {
             return { count: 0, spawnedOnOrigin: false };
         }
 
@@ -157,7 +164,7 @@ export class World extends Phaser.Tilemaps.Tilemap {
         // check each square around/including the tile to see if we spawn a new tile
         for (let i = 0; i < 9 && spawnedTiles < maxSpawnCount; i++) {
             const shouldSpawn =
-                Math.floor(Math.random() * (stability + 1)) === 0;
+                Math.floor(Math.random() * (instability + 1)) === 0;
 
             if (!shouldSpawn) {
                 continue;
@@ -178,7 +185,7 @@ export class World extends Phaser.Tilemaps.Tilemap {
             }
 
             // keep track of whether we killed the player
-            if (tile.x === originTile.x && tile.y === originTile.y) {
+            if (spawnTile.x === originTile.x && spawnTile.y === originTile.y) {
                 spawnedOnOrigin = true;
             }
 
