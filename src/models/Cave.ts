@@ -15,7 +15,7 @@ export class Cave {
     private readonly chanceToGenerateResource = 0.01;
     private readonly requiredNeighborsForLife = 3;
     private readonly requiredNeighborsForBirth = 4;
-    private readonly iterations = 2;
+    private readonly iterations = 3;
 
     get map(): CellState[][] {
         return this._map;
@@ -76,14 +76,14 @@ export class Cave {
                 const xNeighbor = x + i;
                 const yNeighbor = y + j;
 
-                // consider neighbors that are off the map as "open"
+                // consider neighbors that are off the map as "filled"
                 if (
                     xNeighbor < 0 ||
                     yNeighbor < 0 ||
                     xNeighbor >= this._size.width ||
                     yNeighbor >= this._size.height
                 ) {
-                    openNeighbors += 1;
+                    continue;
                 }
 
                 // if this neighbor is open, increment the count
