@@ -1,22 +1,8 @@
 import { TILE_WIDTH } from "../config";
 import { Cave } from "../models/Cave";
-import { displayMap } from "../models/Chrome";
+import { displayMap, displayMoveControls } from "../models/Chrome";
 import { Command, Robot } from "../models/Robot";
-
-enum Asset {
-    Robot,
-    Terrain,
-}
-
-interface Controls {
-    up: Phaser.Input.Keyboard.Key;
-    down: Phaser.Input.Keyboard.Key;
-    left: Phaser.Input.Keyboard.Key;
-    right: Phaser.Input.Keyboard.Key;
-    dig: Phaser.Input.Keyboard.Key;
-
-    //TrackMouse: boolean;
-}
+import { Asset, Controls } from "../models/shared";
 
 export class GameScene extends Phaser.Scene {
     private robot: Robot;
@@ -54,7 +40,7 @@ export class GameScene extends Phaser.Scene {
         displayMap(cave);
 
         this.initDefaultControls();
-        this.physics.world.setBounds(0, 0, this.width, this.height);
+        this.updateChrome();
 
         // create the tilemap
         const map = this.make.tilemap({
@@ -67,6 +53,8 @@ export class GameScene extends Phaser.Scene {
         layer.setCollision([0], false);
         layer.setCollisionByExclusion([0], true);
 
+        this.physics.world.setBounds(0, 0, layer.width, layer.height);
+
         // draw the robot
         const startLocation = cave.startLocation;
         const startCoords = layer.tileToWorldXY(
@@ -74,13 +62,7 @@ export class GameScene extends Phaser.Scene {
             startLocation.y
         );
 
-        this.robot = new Robot(
-            this,
-            startCoords.x,
-            startCoords.y,
-            Asset[Asset.Robot],
-            0
-        );
+        this.robot = new Robot(this, startCoords.x, startCoords.y);
         this.add.existing(this.robot);
         this.physics.add.collider(this.robot, layer);
 
@@ -122,5 +104,9 @@ export class GameScene extends Phaser.Scene {
                 Phaser.Input.Keyboard.KeyCodes.SPACE
             ),
         };
+    }
+
+    private updateChrome() {
+        displayMoveControls(this.controls);
     }
 }

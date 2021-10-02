@@ -17,3 +17,11 @@ body {
 canvas {
     border: 1px solid hotpink;
 }
+
+.chrome-container {
+    display: flex;
+}
+
+.chrome-container > div {
+    flex-basis: calc(100% / 3);
+}

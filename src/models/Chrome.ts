@@ -1,4 +1,5 @@
 import { Cave, CellState } from "./Cave";
+import { Controls } from "./shared";
 
 export function displayMap(cave: Cave): void {
     const display = document.querySelector<HTMLCanvasElement>(".js-map");
@@ -43,4 +44,29 @@ export function displayMap(cave: Cave): void {
         playerWidth,
         playerWidth
     );
+}
+
+let reverseKeycodeMapping: { [keycode: number]: string };
+
+export function displayMoveControls(controls: Controls): void {
+    if (!reverseKeycodeMapping) {
+        reverseKeycodeMapping = {};
+        Object.keys(Phaser.Input.Keyboard.KeyCodes).forEach((key) => {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-expect-error
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+            const keycode = Phaser.Input.Keyboard.KeyCodes[key] as number;
+            reverseKeycodeMapping[keycode] = key;
+        });
+    }
+
+    Object.keys(controls).forEach((key: keyof Controls) => {
+        const element = document.querySelector<HTMLElement>(
+            `.js-move-control-${key}`
+        );
+        if (!element) {
+            return;
+        }
+        element.innerText = reverseKeycodeMapping[controls[key].keyCode];
+    });
 }

@@ -1,4 +1,5 @@
 import type { GameScene } from "../scenes/GameScene";
+import { Asset } from "./shared";
 
 export enum Command {
     Stop,
@@ -12,22 +13,14 @@ export class Robot extends Phaser.GameObjects.Sprite {
     declare body: Phaser.Physics.Arcade.Body;
     declare scene: GameScene;
 
-    constructor(
-        scene: GameScene,
-        x: number,
-        y: number,
-        texture: string,
-        frame?: string | number
-    ) {
-        super(scene, x, y, texture, frame);
+    constructor(scene: GameScene, x: number, y: number) {
+        super(scene, x, y, Asset[Asset.Robot], 0);
 
         this.setOrigin(0, 0);
         scene.physics.add.existing(this);
         this.body.setBounce(0, 0);
 
-        //this.body.setCollideWorldBounds(true).setBounce(0, 0);
-        // HACK: adjust the entity bounds so the corners don't collide with the walls
-        //.setSize(TILE_WIDTH - 2, TILE_WIDTH - 2, true);
+        this.body.setCollideWorldBounds(true);
 
         //this.body.onWorldBounds = true;
     }
