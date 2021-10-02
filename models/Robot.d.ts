@@ -9,7 +9,7 @@ export declare enum Command {
 export declare class Robot extends Phaser.GameObjects.Sprite {
     body: Phaser.Physics.Arcade.Body;
     scene: GameScene;
-    constructor(scene: GameScene, x: number, y: number, texture: string, frame?: string | number);
+    constructor(scene: GameScene, x: number, y: number);
     setDirection(command: Command): void;
     private playAnimation;
 }

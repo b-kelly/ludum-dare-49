@@ -9,4 +9,5 @@ export declare class GameScene extends Phaser.Scene {
     create(): void;
     update(): void;
     private initDefaultControls;
+    private updateChrome;
 }
