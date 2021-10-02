@@ -1,15 +1,11 @@
 import type { GameScene } from "../scenes/GameScene";
-export declare enum Command {
-    Stop = 0,
-    Up = 1,
-    Down = 2,
-    Left = 3,
-    Right = 4
-}
+import { MoveDirection, PlayerState } from "./shared";
 export declare class Robot extends Phaser.GameObjects.Sprite {
     body: Phaser.Physics.Arcade.Body;
     scene: GameScene;
+    private facing;
+    get pState(): PlayerState;
     constructor(scene: GameScene, x: number, y: number);
-    setDirection(command: Command): void;
+    setDirection(command: MoveDirection): void;
     private playAnimation;
 }
