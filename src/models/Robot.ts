@@ -2,17 +2,25 @@ import { TILE_WIDTH } from "../config";
 import type { GameScene } from "../scenes/GameScene";
 import { Asset, MoveDirection, PlayerState } from "./shared";
 
+const MAX_INSTABILITY = 100;
+const MAX_POWER_LEVEL = 100;
+const DELTA_BETWEEN_POWER_LEVELS = 100;
+
 export class Robot extends Phaser.GameObjects.Sprite {
     declare body: Phaser.Physics.Arcade.Body;
     declare scene: GameScene;
 
     private facing: MoveDirection = MoveDirection.Stop;
+    private resourceCount = 0;
+    private currentPowerLevel = MAX_POWER_LEVEL;
+    private lastPowerDegredationTime = -1;
 
     get pState(): PlayerState {
         return {
             location: this.getCenter(),
-            resourceCount: 0,
+            resourceCount: this.resourceCount,
             facing: this.facing,
+            instability: Math.min(MAX_INSTABILITY, this.resourceCount),
         };
     }
 
@@ -54,6 +62,30 @@ export class Robot extends Phaser.GameObjects.Sprite {
         }
 
         this.playAnimation(command);
+    }
+
+    addResource(): void {
+        this.resourceCount += 1;
+    }
+
+    degradePower(currentTime: number): boolean {
+        if (this.lastPowerDegredationTime === -1) {
+            this.lastPowerDegredationTime = currentTime;
+            return false;
+        }
+
+        const timeDelta = currentTime - this.lastPowerDegredationTime;
+        const powerDegredation = Math.floor(
+            timeDelta / DELTA_BETWEEN_POWER_LEVELS
+        );
+        const powerShouldDegrade = powerDegredation > 0;
+
+        if (powerShouldDegrade) {
+            this.currentPowerLevel -= powerDegredation + this.resourceCount;
+            this.lastPowerDegredationTime = currentTime;
+        }
+
+        return powerShouldDegrade;
     }
 
     private playAnimation(command: MoveDirection): void {

@@ -17,12 +17,11 @@ export interface Controls {
     left: Phaser.Input.Keyboard.Key;
     right: Phaser.Input.Keyboard.Key;
     dig: Phaser.Input.Keyboard.Key;
-
-    //TrackMouse: boolean;
 }
 
 export interface PlayerState {
     location: Phaser.Math.Vector2;
     resourceCount: number;
     facing: MoveDirection;
+    instability: number;
 }

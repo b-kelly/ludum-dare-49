@@ -1,9 +1,9 @@
 import { TILE_WIDTH } from "../config";
 import { Cave } from "../models/Cave";
-import { displayMap, displayMoveControls } from "../models/Chrome";
+import { Chrome } from "../models/Chrome";
 import { Robot } from "../models/Robot";
 import { Asset, Controls, MoveDirection } from "../models/shared";
-import { PlayerDeathReason, World } from "../models/World";
+import { DigResults, PlayerDeathReason, World } from "../models/World";
 
 export class GameScene extends Phaser.Scene {
     private robot: Robot;
@@ -41,7 +41,7 @@ export class GameScene extends Phaser.Scene {
     create(): void {
         // TODO yeah, this is creating a cave that is roughly ((width * height) * TILE_WIDTH^2) in size...
         const cave = new Cave(this.width, this.height);
-        displayMap(cave);
+        Chrome.displayMap(cave);
 
         this.initDefaultControls();
         this.updateChrome();
@@ -82,6 +82,10 @@ export class GameScene extends Phaser.Scene {
     }
 
     update(): void {
+        this.updateHandleControls();
+    }
+
+    private updateHandleControls() {
         if (this.controls.up.isDown) {
             this.robot.setDirection(MoveDirection.Up);
         } else if (this.controls.down.isDown) {
@@ -95,15 +99,19 @@ export class GameScene extends Phaser.Scene {
         }
 
         if (!this.currentlyDigging && this.controls.dig.isDown) {
-            const results = this.world.dig(this.robot.pState);
-            console.log(results);
-            if (results.playerDeathReason !== PlayerDeathReason.None) {
-                // TODO
-                console.log("You died!");
-            }
+            const digResults = this.world.dig(this.robot.pState);
+            this.triggerInstability(digResults);
         }
 
         this.currentlyDigging = this.controls.dig.isDown;
+    }
+
+    private triggerInstability(digResults?: DigResults) {
+        console.log(digResults);
+        if (digResults?.playerDeathReason !== PlayerDeathReason.None) {
+            // TODO
+            console.log("You died!");
+        }
     }
 
     private initDefaultControls() {
@@ -119,6 +127,6 @@ export class GameScene extends Phaser.Scene {
     }
 
     private updateChrome() {
-        displayMoveControls(this.controls);
+        Chrome.displayMoveControls(this.controls);
     }
 }
