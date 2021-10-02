@@ -1,12 +1,16 @@
 import { TILE_WIDTH } from "../config";
 import { Cave } from "../models/Cave";
 import { displayMap, displayMoveControls } from "../models/Chrome";
-import { Command, Robot } from "../models/Robot";
-import { Asset, Controls } from "../models/shared";
+import { Robot } from "../models/Robot";
+import { Asset, Controls, MoveDirection } from "../models/shared";
+import { World } from "../models/World";
 
 export class GameScene extends Phaser.Scene {
     private robot: Robot;
     private controls: Controls;
+    private world: World;
+
+    private currentlyDigging = false;
 
     constructor() {
         super({ key: "Game" });
@@ -43,28 +47,25 @@ export class GameScene extends Phaser.Scene {
         this.updateChrome();
 
         // create the tilemap
-        const map = this.make.tilemap({
-            data: cave.toTilemap(),
-            tileWidth: TILE_WIDTH,
-            tileHeight: TILE_WIDTH,
-        });
-        const tiles = map.addTilesetImage(Asset[Asset.Terrain]);
-        const layer = map.createLayer(0, tiles, 0, 0);
-        layer.setCollision([0], false);
-        layer.setCollisionByExclusion([0], true);
+        this.world = new World(this, cave);
 
-        this.physics.world.setBounds(0, 0, layer.width, layer.height);
+        this.physics.world.setBounds(
+            0,
+            0,
+            this.world.widthInPixels,
+            this.world.heightInPixels
+        );
 
         // draw the robot
         const startLocation = cave.startLocation;
-        const startCoords = layer.tileToWorldXY(
+        const startCoords = this.world.tileToWorldXY(
             startLocation.x,
             startLocation.y
         );
 
         this.robot = new Robot(this, startCoords.x, startCoords.y);
         this.add.existing(this.robot);
-        this.physics.add.collider(this.robot, layer);
+        this.physics.add.collider(this.robot, this.world.primaryLayer);
 
         // set up the camera
         const camera = this.cameras.main;
@@ -82,16 +83,23 @@ export class GameScene extends Phaser.Scene {
 
     update(): void {
         if (this.controls.up.isDown) {
-            this.robot.setDirection(Command.Up);
+            this.robot.setDirection(MoveDirection.Up);
         } else if (this.controls.down.isDown) {
-            this.robot.setDirection(Command.Down);
+            this.robot.setDirection(MoveDirection.Down);
         } else if (this.controls.left.isDown) {
-            this.robot.setDirection(Command.Left);
+            this.robot.setDirection(MoveDirection.Left);
         } else if (this.controls.right.isDown) {
-            this.robot.setDirection(Command.Right);
+            this.robot.setDirection(MoveDirection.Right);
         } else {
-            this.robot.setDirection(Command.Stop);
+            this.robot.setDirection(MoveDirection.Stop);
         }
+
+        if (!this.currentlyDigging && this.controls.dig.isDown) {
+            const results = this.world.dig(this.robot.pState);
+            console.log(this.controls.dig.repeats, results);
+        }
+
+        this.currentlyDigging = this.controls.dig.isDown;
     }
 
     private initDefaultControls() {

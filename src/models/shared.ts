@@ -3,6 +3,14 @@ export enum Asset {
     Terrain,
 }
 
+export enum MoveDirection {
+    Stop,
+    Up,
+    Down,
+    Left,
+    Right,
+}
+
 export interface Controls {
     up: Phaser.Input.Keyboard.Key;
     down: Phaser.Input.Keyboard.Key;
@@ -11,4 +19,10 @@ export interface Controls {
     dig: Phaser.Input.Keyboard.Key;
 
     //TrackMouse: boolean;
+}
+
+export interface PlayerState {
+    location: Phaser.Math.Vector2;
+    resourceCount: number;
+    facing: MoveDirection;
 }
