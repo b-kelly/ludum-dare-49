@@ -9,6 +9,7 @@ export enum CellState {
 export class Cave {
     private _map: CellState[][] = [];
     private readonly _size: { width: number; height: number };
+    private readonly _startLocation: { x: number; y: number };
 
     private readonly chanceToStartOpen = 0.4;
     private readonly chanceToGenerateResource = 0.01;
@@ -24,9 +25,14 @@ export class Cave {
         return this._size;
     }
 
+    get startLocation(): { x: number; y: number } {
+        return this._startLocation;
+    }
+
     constructor(width: number, height: number) {
         this._size = { width, height };
         this._map = this.generateCave();
+        this._startLocation = this.findSuitableStartLocation(this._map);
     }
 
     /** Completely generates a cave */
@@ -132,6 +138,31 @@ export class Cave {
                             ? CellState.Resource
                             : CellState.Wall;
                 }
+            }
+        }
+    }
+
+    /** Finds an open space near the bottom middle of the map for the player to spawn */
+    private findSuitableStartLocation(map: CellState[][]) {
+        const middle = Math.floor(this._size.width / 2);
+        for (let i = this._size.height - 1; i >= 0; i--) {
+            for (let j = 0, len = this.size.width / 2; j < len; j++) {
+                // look to the left/right of the middle for an open cell
+                const left = middle - j;
+                const right = middle + j;
+
+                if (left >= 0 && map[left][i] === CellState.Open) {
+                    return { x: left, y: i };
+                }
+
+                if (
+                    right <= this._size.width &&
+                    map[right][i] === CellState.Open
+                ) {
+                    return { x: right, y: i };
+                }
+
+                // else - we didn't find an open cell, so move on to the next row up
             }
         }
     }
