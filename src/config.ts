@@ -1,3 +1,4 @@
+import { GameOverScene } from "./scenes/GameOverScene";
 import { GameScene } from "./scenes/GameScene";
 
 export const TILE_WIDTH = 32;
@@ -26,5 +27,5 @@ export const gameConfig: Phaser.Types.Core.GameConfig = {
     parent: "js-game-container",
     backgroundColor: "#ffffff",
     autoFocus: true,
-    scene: [GameScene],
+    scene: [GameScene, GameOverScene],
 };

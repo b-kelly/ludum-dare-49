@@ -2,15 +2,31 @@ import { TILE_WIDTH } from "../config";
 import { Cave } from "../models/Cave";
 import { Chrome } from "../models/Chrome";
 import { Robot } from "../models/Robot";
-import { Asset, Controls, MoveDirection } from "../models/shared";
+import {
+    Asset,
+    ControlsHandler,
+    MoveDirection,
+    PlayerState,
+    SetControls,
+} from "../models/shared";
 import { DigResults, PlayerDeathReason, World } from "../models/World";
+
+enum InstabilityType {
+    None,
+    Collapse,
+    PowerDegredation,
+}
+
+/** Value between 0 and 100; percent points between power instability triggers */
+const PERCENT_POWER_INSTABILITY_THRESHOLD = 10;
 
 export class GameScene extends Phaser.Scene {
     private robot: Robot;
-    private controls: Controls;
+    private controls: ControlsHandler;
     private world: World;
 
     private currentlyDigging = false;
+    private lastPowerInstabilityPercentage = 0;
 
     constructor() {
         super({ key: "Game" });
@@ -87,24 +103,24 @@ export class GameScene extends Phaser.Scene {
     }
 
     private updateHandleControls() {
-        if (this.controls.up.isDown) {
+        if (this.controls.set.up.isDown) {
             this.robot.setDirection(MoveDirection.Up);
-        } else if (this.controls.down.isDown) {
+        } else if (this.controls.set.down.isDown) {
             this.robot.setDirection(MoveDirection.Down);
-        } else if (this.controls.left.isDown) {
+        } else if (this.controls.set.left.isDown) {
             this.robot.setDirection(MoveDirection.Left);
-        } else if (this.controls.right.isDown) {
+        } else if (this.controls.set.right.isDown) {
             this.robot.setDirection(MoveDirection.Right);
         } else {
             this.robot.setDirection(MoveDirection.Stop);
         }
 
-        if (!this.currentlyDigging && this.controls.dig.isDown) {
+        if (!this.currentlyDigging && this.controls.set.dig.isDown) {
             const digResults = this.world.dig(this.robot.pState);
             this.handleDig(digResults);
         }
 
-        this.currentlyDigging = this.controls.dig.isDown;
+        this.currentlyDigging = this.controls.set.dig.isDown;
     }
 
     private updateHandleRobotState(time: number) {
@@ -115,29 +131,83 @@ export class GameScene extends Phaser.Scene {
 
             if (state.powerPercentage <= 0) {
                 this.handleRobotDeath(PlayerDeathReason.NoPower);
+            } else {
+                this.triggerInstability(
+                    InstabilityType.PowerDegredation,
+                    null,
+                    state
+                );
             }
         }
     }
 
     private handleDig(digResults: DigResults) {
-        console.log(digResults);
         if (digResults?.playerDeathReason !== PlayerDeathReason.None) {
             this.handleRobotDeath(digResults.playerDeathReason);
+            return;
         }
 
         if (digResults.collectedResource) {
             this.robot.addResource();
             Chrome.updatePowerMeter(this.robot.pState.powerPercentage);
         }
+
+        if (digResults.triggeredCollapse) {
+            this.triggerInstability(InstabilityType.Collapse, digResults);
+        }
+    }
+
+    private triggerInstability(
+        type: InstabilityType,
+        digResults?: DigResults,
+        state?: PlayerState
+    ) {
+        if (type === InstabilityType.None) {
+            return;
+        }
+
+        if (type === InstabilityType.Collapse) {
+            // scramble all controls; if player collected a resource, then scramble close to wasd
+            this.controls.scrambleAll(digResults?.triggeredCollapse ?? false);
+        } else if (type === InstabilityType.PowerDegredation) {
+            const powerPercent = state?.powerPercentage ?? 0;
+            if (this.lastPowerInstabilityPercentage <= 0) {
+                this.lastPowerInstabilityPercentage = powerPercent;
+            } else {
+                const lastValue = Math.floor(
+                    this.lastPowerInstabilityPercentage /
+                        PERCENT_POWER_INSTABILITY_THRESHOLD
+                );
+                const currValue = Math.floor(
+                    powerPercent / PERCENT_POWER_INSTABILITY_THRESHOLD
+                );
+                const diff = Math.abs(lastValue - currValue);
+
+                // we've hit the percent threshold, so cause some havoc
+                if (diff > 0) {
+                    console.log(
+                        `Causing instability due to power loss; ${diff} times`
+                    );
+                    // for every PERCENT_POWER_INSTABILITY_THRESHOLD% of power, scramble one control
+                    for (let i = 0; i < diff; i++) {
+                        this.controls.scrambleSingle();
+                    }
+
+                    this.lastPowerInstabilityPercentage = powerPercent;
+                }
+            }
+        }
     }
 
     private handleRobotDeath(reason: PlayerDeathReason) {
-        // TODO
-        console.log(`You died due to ${PlayerDeathReason[reason]}`);
+        this.scene.start("GameOver", {
+            reason: PlayerDeathReason[reason],
+            score: this.robot.pState.resourceCount,
+        });
     }
 
     private initDefaultControls() {
-        this.controls = {
+        const controls: SetControls = {
             up: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W),
             down: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S),
             left: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A),
@@ -146,9 +216,10 @@ export class GameScene extends Phaser.Scene {
                 Phaser.Input.Keyboard.KeyCodes.SPACE
             ),
         };
+        this.controls = new ControlsHandler(controls);
     }
 
     private updateChrome() {
-        Chrome.displayMoveControls(this.controls);
+        Chrome.displayMoveControls(this.controls.set);
     }
 }

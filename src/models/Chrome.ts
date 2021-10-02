@@ -1,5 +1,5 @@
 import { Cave, CellState } from "./Cave";
-import { Controls } from "./shared";
+import { SetControls } from "./shared";
 
 class ChromeHandler {
     private reverseKeycodeMapping: { [keycode: number]: string };
@@ -50,7 +50,7 @@ class ChromeHandler {
         );
     }
 
-    displayMoveControls(controls: Controls): void {
+    displayMoveControls(controls: SetControls): void {
         if (!this.reverseKeycodeMapping) {
             this.reverseKeycodeMapping = {};
             Object.keys(Phaser.Input.Keyboard.KeyCodes).forEach((key) => {
@@ -62,7 +62,7 @@ class ChromeHandler {
             });
         }
 
-        Object.keys(controls).forEach((control: keyof Controls) => {
+        Object.keys(controls).forEach((control: keyof SetControls) => {
             const element = this.get(`.js-move-control-${control}`);
             if (!element) {
                 return;
@@ -76,7 +76,10 @@ class ChromeHandler {
 
     updatePowerMeter(powerPercent: number) {
         const el = this.get(".js-power-meter");
-        el.style.setProperty("--power-percent", `${powerPercent}%`);
+        el.style.setProperty(
+            "--power-percent",
+            `${Math.max(0, powerPercent)}%`
+        );
     }
 
     private get<T extends HTMLElement = HTMLElement>(selector: string): T {
