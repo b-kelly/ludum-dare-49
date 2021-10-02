@@ -1,16 +1,26 @@
 import { TILE_WIDTH } from "../config";
 import { Cave } from "../models/Cave";
 import { displayMap } from "../models/Chrome";
+import { Command, Robot } from "../models/Robot";
 
-// enum TileType {
-//     Ground,
-//     Robot,
-//     Resource,
-//     Wall,
-// }
+enum Asset {
+    Robot,
+    Terrain,
+}
+
+interface Controls {
+    up: Phaser.Input.Keyboard.Key;
+    down: Phaser.Input.Keyboard.Key;
+    left: Phaser.Input.Keyboard.Key;
+    right: Phaser.Input.Keyboard.Key;
+    dig: Phaser.Input.Keyboard.Key;
+
+    //TrackMouse: boolean;
+}
 
 export class GameScene extends Phaser.Scene {
-    private cave: Cave;
+    private robot: Robot;
+    private controls: Controls;
 
     constructor() {
         super({ key: "Game" });
@@ -28,43 +38,89 @@ export class GameScene extends Phaser.Scene {
     }
 
     preload(): void {
-        // this.load.image(TileType[TileType.Ground], "assets/ground.png");
-        // this.load.image(TileType[TileType.Robot], "assets/robot.png");
-        // this.load.image(TileType[TileType.Resource], "assets/resource.png");
-        // this.load.spritesheet(TileType[TileType.Wall], "assets/walls.png", {
-        //     frameWidth: TILE_WIDTH,
-        //     frameHeight: TILE_WIDTH,
-        // });
-
-        // TODO yeah, this is creating a cave that is roughly ((width * height) * TILE_WIDTH^2) in size...
-        this.cave = new Cave(this.width, this.height);
-        displayMap(this.cave);
+        this.load.spritesheet(Asset[Asset.Robot], "assets/robot.png", {
+            frameWidth: TILE_WIDTH,
+            frameHeight: TILE_WIDTH,
+        });
+        this.load.spritesheet(Asset[Asset.Terrain], "assets/terrain.png", {
+            frameWidth: TILE_WIDTH,
+            frameHeight: TILE_WIDTH,
+        });
     }
 
     create(): void {
-        this.physics.world.setBounds(0, 0, this.width, this.height);
-        // draw the ground layer
-        this.add
-            .rectangle(0, 0, this.width, this.height, 0x695958)
-            .setOrigin(0);
+        // TODO yeah, this is creating a cave that is roughly ((width * height) * TILE_WIDTH^2) in size...
+        const cave = new Cave(this.width, this.height);
+        displayMap(cave);
 
-        // draw the robot
-        this.add.rectangle(0, 0, TILE_WIDTH, TILE_WIDTH, 0x006d77).setOrigin(0);
+        this.initDefaultControls();
+        this.physics.world.setBounds(0, 0, this.width, this.height);
 
         // create the tilemap
         const map = this.make.tilemap({
-            data: this.cave.map,
+            data: cave.toTilemap(),
             tileWidth: TILE_WIDTH,
             tileHeight: TILE_WIDTH,
         });
-        const tiles = map.addTilesetImage("walls", "walls");
+        const tiles = map.addTilesetImage(Asset[Asset.Terrain]);
         const layer = map.createLayer(0, tiles, 0, 0);
+        layer.setCollision([0], false);
+        layer.setCollisionByExclusion([0], true);
 
-        // TODO resource 140d4f
-        // TODO wall/filled 96ADC8
+        // draw the robot
+        const startLocation = cave.startLocation;
+        const startCoords = layer.tileToWorldXY(
+            startLocation.x,
+            startLocation.y
+        );
+
+        this.robot = new Robot(
+            this,
+            startCoords.x,
+            startCoords.y,
+            Asset[Asset.Robot],
+            0
+        );
+        this.add.existing(this.robot);
+        this.physics.add.collider(this.robot, layer);
+
+        // set up the camera
+        const camera = this.cameras.main;
+        //camera.setBounds(0, 0, this.width, this.height);
+        camera.centerOn(this.robot.x, this.robot.y);
+        camera.startFollow(
+            this.robot,
+            false,
+            1,
+            1,
+            TILE_WIDTH / 2,
+            TILE_WIDTH / 2
+        );
     }
 
     update(): void {
-        /* TODO */
+        if (this.controls.up.isDown) {
+            this.robot.setDirection(Command.Up);
+        } else if (this.controls.down.isDown) {
+            this.robot.setDirection(Command.Down);
+        } else if (this.controls.left.isDown) {
+            this.robot.setDirection(Command.Left);
+        } else if (this.controls.right.isDown) {
+            this.robot.setDirection(Command.Right);
+        } else {
+            this.robot.setDirection(Command.Stop);
+        }
+    }
+
+    private initDefaultControls() {
+        this.controls = {
+            up: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W),
+            down: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S),
+            left: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A),
+            right: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D),
+            dig: this.input.keyboard.addKey(
+                Phaser.Input.Keyboard.KeyCodes.SPACE
+            ),
+        };
     }
 }

@@ -1,6 +1,6 @@
 export enum CellState {
-    Filled,
     Open,
+    Filled,
     Wall,
     Resource,
 }
@@ -33,6 +33,19 @@ export class Cave {
         this._size = { width, height };
         this._map = this.generateCave();
         this._startLocation = this.findSuitableStartLocation(this._map);
+    }
+
+    /** Tile map expects this backwards from how we're rendering it */
+    toTilemap(): CellState[][] {
+        const tilemap = [];
+        for (let i = 0; i < this._size.width; i++) {
+            tilemap[i] = [];
+            for (let j = 0; j < this._size.height; j++) {
+                tilemap[i][j] = this._map[j][i];
+            }
+        }
+
+        return tilemap;
     }
 
     /** Completely generates a cave */
