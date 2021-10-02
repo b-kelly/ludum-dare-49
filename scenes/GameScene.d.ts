@@ -1,5 +1,6 @@
 export declare class GameScene extends Phaser.Scene {
-    private cave;
+    private robot;
+    private controls;
     constructor();
     private get width();
     private get height();
@@ -7,4 +8,5 @@ export declare class GameScene extends Phaser.Scene {
     preload(): void;
     create(): void;
     update(): void;
+    private initDefaultControls;
 }

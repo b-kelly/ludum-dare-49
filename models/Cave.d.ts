@@ -1,6 +1,6 @@
 export declare enum CellState {
-    Filled = 0,
-    Open = 1,
+    Open = 0,
+    Filled = 1,
     Wall = 2,
     Resource = 3
 }
@@ -24,6 +24,8 @@ export declare class Cave {
         y: number;
     };
     constructor(width: number, height: number);
+    /** Tile map expects this backwards from how we're rendering it */
+    toTilemap(): CellState[][];
     /** Completely generates a cave */
     private generateCave;
     /** Initializes a map with seed cells placed */
