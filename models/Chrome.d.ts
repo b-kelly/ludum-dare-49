@@ -1,4 +1,12 @@
 import { Cave } from "./Cave";
-import { Controls } from "./shared";
-export declare function displayMap(cave: Cave): void;
-export declare function displayMoveControls(controls: Controls): void;
+import { PlayerState, SetControls } from "./shared";
+declare class ChromeHandler {
+    private reverseKeycodeMapping;
+    private controlElements;
+    displayMap(cave: Cave): void;
+    displayMoveControls(controls: SetControls): void;
+    updateMeters(state: PlayerState): void;
+    private get;
+}
+export declare const Chrome: ChromeHandler;
+export {};

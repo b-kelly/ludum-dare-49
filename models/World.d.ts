@@ -3,7 +3,8 @@ import { Cave } from "./Cave";
 import { PlayerState } from "./shared";
 export declare enum PlayerDeathReason {
     None = 0,
-    Collapse = 1
+    Collapse = 1,
+    NoPower = 2
 }
 export interface DigResults {
     collectedResource: boolean;
