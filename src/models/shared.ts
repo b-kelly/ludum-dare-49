@@ -169,4 +169,6 @@ export interface PlayerState {
     facing: MoveDirection;
     powerPercentage: number;
     recoveryPercentage: number;
+    totalInstabilityPercentage: number;
+    isDifficult: boolean;
 }

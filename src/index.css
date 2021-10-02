@@ -32,6 +32,10 @@ canvas {
     background-color: black;
 }
 
+.meter--instability {
+    color: red;
+}
+
 .meter--power {
     color: blue;
 }

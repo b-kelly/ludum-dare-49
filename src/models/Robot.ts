@@ -11,6 +11,9 @@ const RECOVERY_DEGREDATION_RATE_MS = 1000;
 /** Value between 0 and 1, where 1 completely refills the power bar */
 const RESOURCE_REFILL_PERCENT = 1;
 
+/** Value of total instability when the game switches to difficult */
+const TOTAL_INSTABILITY_DIFFICULTY_THRESHOLD = 20;
+
 class Meter {
     lastUpdateTime = -1;
 
@@ -77,6 +80,8 @@ export class Robot extends Phaser.GameObjects.Sprite {
 
     private facing: MoveDirection = MoveDirection.Stop;
     private resourceCount = 0;
+    private recoveriesUsed = 0;
+    private instabilities = 0;
 
     private powerMeter = new Meter(
         POWER_DEGREDATION_S,
@@ -95,7 +100,17 @@ export class Robot extends Phaser.GameObjects.Sprite {
             facing: this.facing,
             powerPercentage: this.powerMeter.percent,
             recoveryPercentage: 100 - this.recoveryMeter.percent,
+            totalInstabilityPercentage:
+                (this.totalInstability /
+                    TOTAL_INSTABILITY_DIFFICULTY_THRESHOLD) *
+                100,
+            isDifficult:
+                this.totalInstability >= TOTAL_INSTABILITY_DIFFICULTY_THRESHOLD,
         };
+    }
+
+    private get totalInstability(): number {
+        return this.resourceCount + this.recoveriesUsed + this.instabilities;
     }
 
     constructor(scene: GameScene, x: number, y: number) {
@@ -145,6 +160,10 @@ export class Robot extends Phaser.GameObjects.Sprite {
         this.powerMeter.refill(refillAmount, time);
     }
 
+    addInstability(): void {
+        this.instabilities += 1;
+    }
+
     degradePower(currentTime: number): boolean {
         return this.powerMeter.degrade(currentTime, this.resourceCount);
     }
@@ -155,6 +174,7 @@ export class Robot extends Phaser.GameObjects.Sprite {
 
     expendRecovery(currentTime: number): void {
         this.recoveryMeter.update(this.recoveryMeter.maxValue, currentTime);
+        this.recoveriesUsed += 1;
     }
 
     private playAnimation(command: MoveDirection): void {

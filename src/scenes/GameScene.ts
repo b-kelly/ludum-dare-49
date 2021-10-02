@@ -20,8 +20,6 @@ enum InstabilityType {
 
 /** Value between 0 and 100; percent points between power instability triggers */
 const PERCENT_POWER_INSTABILITY_THRESHOLD = 20;
-/** Value between 0 and 100; at what % does the instability get harder */
-const PERCENT_POWER_DIFFICULTY_THRESHOLD = 50;
 
 export class GameScene extends Phaser.Scene {
     private robot: Robot;
@@ -193,8 +191,7 @@ export class GameScene extends Phaser.Scene {
             return;
         }
 
-        const isDifficult =
-            state.powerPercentage <= PERCENT_POWER_DIFFICULTY_THRESHOLD;
+        const isDifficult = state.isDifficult;
 
         if (type === InstabilityType.Collapse) {
             if (isDifficult) {

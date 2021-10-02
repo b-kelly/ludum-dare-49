@@ -129,6 +129,16 @@ class ChromeHandler {
             "meter--charged",
             state.recoveryPercentage >= 100
         );
+
+        el = this.get(".js-instability-meter");
+        el.style.setProperty(
+            "--percent-filled",
+            `${Math.max(0, state.totalInstabilityPercentage)}%`
+        );
+        el.parentElement.classList.toggle(
+            "meter--charged",
+            state.totalInstabilityPercentage >= 100
+        );
     }
 
     showMessage(type: MessageType) {
