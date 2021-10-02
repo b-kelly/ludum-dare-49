@@ -5,7 +5,7 @@ import { Asset, MoveDirection, PlayerState } from "./shared";
 const POWER_DEGREDATION_S = 60;
 const POWER_DEGREDATION_RATE_MS = 1000;
 
-const RECOVERY_DEGREDATION_S = 30;
+const RECOVERY_DEGREDATION_S = 60;
 const RECOVERY_DEGREDATION_RATE_MS = 1000;
 
 /** Value between 0 and 1, where 1 completely refills the power bar */
@@ -151,6 +151,10 @@ export class Robot extends Phaser.GameObjects.Sprite {
 
     chargeRecovery(currentTime: number): boolean {
         return this.recoveryMeter.degrade(currentTime, this.resourceCount);
+    }
+
+    expendRecovery(currentTime: number): void {
+        this.recoveryMeter.update(this.recoveryMeter.maxValue, currentTime);
     }
 
     private playAnimation(command: MoveDirection): void {

@@ -19,6 +19,11 @@ export interface SetControls {
     dig: Phaser.Input.Keyboard.Key;
 }
 
+export enum RecoveryState {
+    None,
+    Available,
+}
+
 const VALID_KEYCODE_RANGES = {
     Alpha: [65, 90],
     Numeric: [48, 57],
@@ -50,6 +55,14 @@ const VALID_CLUSTER_KEYCODES: number[] = [
     Phaser.Input.Keyboard.KeyCodes.C,
     Phaser.Input.Keyboard.KeyCodes.F,
 ];
+
+const DEFAULT_CONTROLS = {
+    up: Phaser.Input.Keyboard.KeyCodes.W,
+    down: Phaser.Input.Keyboard.KeyCodes.S,
+    left: Phaser.Input.Keyboard.KeyCodes.A,
+    right: Phaser.Input.Keyboard.KeyCodes.D,
+    dig: Phaser.Input.Keyboard.KeyCodes.SPACE,
+};
 
 function ridx(count: number) {
     return Math.floor(Math.random() * count);
@@ -94,11 +107,9 @@ export class ControlsHandler {
     }
 
     revertToDefault(): void {
-        this.registerKey("up", Phaser.Input.Keyboard.KeyCodes.W);
-        this.registerKey("down", Phaser.Input.Keyboard.KeyCodes.S);
-        this.registerKey("left", Phaser.Input.Keyboard.KeyCodes.A);
-        this.registerKey("right", Phaser.Input.Keyboard.KeyCodes.D);
-        this.registerKey("dig", Phaser.Input.Keyboard.KeyCodes.SPACE);
+        Object.keys(DEFAULT_CONTROLS).forEach((key: keyof SetControls) => {
+            this.registerKey(key, DEFAULT_CONTROLS[key]);
+        });
     }
 
     private getRandomControl(): keyof SetControls {

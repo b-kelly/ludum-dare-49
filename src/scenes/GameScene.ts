@@ -7,6 +7,7 @@ import {
     ControlsHandler,
     MoveDirection,
     PlayerState,
+    RecoveryState,
 } from "../models/shared";
 import { DigResults, PlayerDeathReason, World } from "../models/World";
 
@@ -17,17 +18,22 @@ enum InstabilityType {
 }
 
 /** Value between 0 and 100; percent points between power instability triggers */
-const PERCENT_POWER_INSTABILITY_THRESHOLD = 10;
+const PERCENT_POWER_INSTABILITY_THRESHOLD = 20;
 /** Value between 0 and 100; at what % does the instability get harder */
 const PERCENT_POWER_DIFFICULTY_THRESHOLD = 50;
+
+/** Key to press to start recovery mode; this never scrambles, so don't place it in the controls handler */
+const RECOVERY_KEY = Phaser.Input.Keyboard.KeyCodes.ESC;
 
 export class GameScene extends Phaser.Scene {
     private robot: Robot;
     private controls: ControlsHandler;
+    private recoveryKey: Phaser.Input.Keyboard.Key;
     private world: World;
 
     private currentlyDigging = false;
     private lastPowerInstabilityPercentage = 0;
+    private recoveryState = RecoveryState.None;
 
     constructor() {
         super({ key: "Game" });
@@ -61,6 +67,7 @@ export class GameScene extends Phaser.Scene {
         Chrome.displayMap(cave);
 
         this.controls = new ControlsHandler(this);
+        this.recoveryKey = this.input.keyboard.addKey(RECOVERY_KEY);
         this.updateChrome();
 
         // create the tilemap
@@ -119,6 +126,13 @@ export class GameScene extends Phaser.Scene {
         if (!this.currentlyDigging && this.controls.set.dig.isDown) {
             const digResults = this.world.dig(this.robot.pState);
             this.handleDig(digResults, time);
+        }
+
+        if (
+            this.recoveryState === RecoveryState.Available &&
+            this.recoveryKey.isDown
+        ) {
+            this.triggerRecovery();
         }
 
         this.currentlyDigging = this.controls.set.dig.isDown;
@@ -225,8 +239,17 @@ export class GameScene extends Phaser.Scene {
         }
     }
 
-    private triggerRecovery() {
-        //TODO
+    private triggerRecovery(time = 0) {
+        if (this.recoveryState === RecoveryState.None) {
+            this.recoveryState = RecoveryState.Available;
+        } else if (this.recoveryState === RecoveryState.Available) {
+            // trigger the recovery
+            this.controls.revertToDefault();
+            this.robot.expendRecovery(time);
+            this.recoveryState = RecoveryState.None;
+        }
+
+        this.updateChrome();
     }
 
     private handleRobotDeath(reason: PlayerDeathReason) {
@@ -237,6 +260,6 @@ export class GameScene extends Phaser.Scene {
     }
 
     private updateChrome() {
-        Chrome.displayMoveControls(this.controls.set);
+        Chrome.displayState(this.controls.set, this.recoveryState);
     }
 }

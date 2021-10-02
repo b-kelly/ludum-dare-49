@@ -1,5 +1,5 @@
 import { Cave, CellState } from "./Cave";
-import { PlayerState, SetControls } from "./shared";
+import { PlayerState, RecoveryState, SetControls } from "./shared";
 
 class ChromeHandler {
     private reverseKeycodeMapping: { [keycode: number]: string };
@@ -50,7 +50,7 @@ class ChromeHandler {
         );
     }
 
-    displayMoveControls(controls: SetControls): void {
+    displayState(controls: SetControls, recoverState: RecoveryState): void {
         if (!this.reverseKeycodeMapping) {
             this.reverseKeycodeMapping = {};
             Object.keys(Phaser.Input.Keyboard.KeyCodes).forEach((key) => {
@@ -72,6 +72,17 @@ class ChromeHandler {
                 this.reverseKeycodeMapping[controls[control].keyCode];
             element.innerText = `${control}: ${keyName}`;
         });
+
+        let recoverText: string;
+        switch (recoverState) {
+            case RecoveryState.Available:
+                recoverText = "Press ESC to activate!";
+                break;
+            default:
+                recoverText = "Charging...";
+        }
+
+        this.get(".js-recover-state").innerText = recoverText;
     }
 
     updateMeters(state: PlayerState) {
@@ -85,6 +96,10 @@ class ChromeHandler {
         el.style.setProperty(
             "--percent-filled",
             `${Math.max(0, state.recoveryPercentage)}%`
+        );
+        el.parentElement.classList.toggle(
+            "meter--charged",
+            state.recoveryPercentage >= 100
         );
     }
 
