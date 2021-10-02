@@ -22,6 +22,7 @@ export declare enum RecoveryState {
 }
 /** Key to press to start recovery mode; this never scrambles, so don't place it in the controls handler */
 export declare const RECOVERY_KEY: number;
+export declare function ridx(count: number): number;
 export declare class ControlsHandler {
     scene: Phaser.Scene;
     set: SetControls;
@@ -44,4 +45,6 @@ export interface PlayerState {
     facing: MoveDirection;
     powerPercentage: number;
     recoveryPercentage: number;
+    totalInstabilityPercentage: number;
+    isDifficult: boolean;
 }

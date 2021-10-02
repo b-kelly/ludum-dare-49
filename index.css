@@ -32,6 +32,10 @@ canvas {
     background-color: black;
 }
 
+.meter--instability {
+    color: red;
+}
+
 .meter--power {
     color: blue;
 }
@@ -48,5 +52,9 @@ canvas {
     width: var(--percent-filled, 0%);
     height: 10px;
     background-color: currentColor;
+}
+
+.hide-debug {
+    display: none;
 }
 

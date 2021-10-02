@@ -5,14 +5,18 @@ export declare class Robot extends Phaser.GameObjects.Sprite {
     scene: GameScene;
     private facing;
     private resourceCount;
+    private recoveriesUsed;
+    private instabilities;
     private powerMeter;
     private recoveryMeter;
     get pState(): PlayerState;
+    private get totalInstability();
     constructor(scene: GameScene, x: number, y: number);
     setDirection(command: MoveDirection): void;
     addResource(time: number): void;
+    addInstability(): void;
     degradePower(currentTime: number): boolean;
     chargeRecovery(currentTime: number): boolean;
-    expendRecovery(currentTime: number): void;
+    expendRecovery(): void;
     private playAnimation;
 }

@@ -10,7 +10,6 @@ export interface DigResults {
     collectedResource: boolean;
     triggeredCollapse: boolean;
     playerDeathReason: PlayerDeathReason;
-    spawnedTiles: number;
 }
 export declare class World extends Phaser.Tilemaps.Tilemap {
     get primaryLayer(): Phaser.Tilemaps.TilemapLayer;
