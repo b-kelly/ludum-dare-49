@@ -1,0 +1,32 @@
+export declare enum CellState {
+    Filled = 0,
+    Open = 1,
+    Wall = 2,
+    Resource = 3
+}
+/** Generates a connected cave with cellular automata */
+export declare class Cave {
+    private _map;
+    private readonly _size;
+    private readonly chanceToStartOpen;
+    private readonly chanceToGenerateResource;
+    private readonly requiredNeighborsForLife;
+    private readonly requiredNeighborsForBirth;
+    private readonly iterations;
+    get map(): CellState[][];
+    get size(): {
+        width: number;
+        height: number;
+    };
+    constructor(width: number, height: number);
+    /** Completely generates a cave */
+    private generateCave;
+    /** Initializes a map with seed cells placed */
+    private initializeMap;
+    /** Get the count of open neighbors around a given cell */
+    private getOpenNeighbors;
+    /** Runs a single cellular automata simulation step on a map */
+    private runSimulationStep;
+    /** Mark all the cavern walls in place, placing resources on them if able */
+    private markWallsAndPlaceResources;
+}
