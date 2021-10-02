@@ -66,6 +66,10 @@ export class GameScene extends Phaser.Scene {
         this.recoveryKey = this.input.keyboard.addKey(RECOVERY_KEY);
         this.updateChrome();
 
+        this.recoveryKey.addListener("down", () => {
+            this.triggerRecovery();
+        });
+
         // create the tilemap
         this.world = new World(this, cave);
 
@@ -124,13 +128,6 @@ export class GameScene extends Phaser.Scene {
             this.handleDig(digResults, time);
         }
 
-        if (
-            this.recoveryState === RecoveryState.Available &&
-            this.recoveryKey.isDown
-        ) {
-            this.triggerRecovery();
-        }
-
         this.currentlyDigging = this.controls.set.dig.isDown;
     }
 
@@ -152,7 +149,7 @@ export class GameScene extends Phaser.Scene {
         }
 
         if (charged && state.recoveryPercentage >= 100) {
-            this.triggerRecovery();
+            this.recoveryState = RecoveryState.Available;
         }
 
         if (degraded || charged) {
@@ -194,6 +191,7 @@ export class GameScene extends Phaser.Scene {
         const isDifficult = state.isDifficult;
 
         if (type === InstabilityType.Collapse) {
+            this.robot.addInstability();
             if (isDifficult) {
                 // scramble all controls; if player collected a resource, then scramble close to wasd
                 this.controls.scrambleAll(
@@ -204,6 +202,7 @@ export class GameScene extends Phaser.Scene {
             const diff = this.getPowerDegredationDiff(state.powerPercentage);
             // we've hit the percent threshold, so cause some havoc
             if (diff > 0) {
+                this.robot.addInstability();
                 // for every PERCENT_POWER_INSTABILITY_THRESHOLD% of power, scramble one control
                 for (let i = 0; i < diff; i++) {
                     this.controls.scrambleSingle(isDifficult);
@@ -234,13 +233,11 @@ export class GameScene extends Phaser.Scene {
         }
     }
 
-    private triggerRecovery(time = 0) {
-        if (this.recoveryState === RecoveryState.None) {
-            this.recoveryState = RecoveryState.Available;
-        } else if (this.recoveryState === RecoveryState.Available) {
+    private triggerRecovery() {
+        if (this.recoveryState === RecoveryState.Available) {
             // trigger the recovery
             this.controls.revertToDefault();
-            this.robot.expendRecovery(time);
+            this.robot.expendRecovery();
             this.recoveryState = RecoveryState.None;
         }
 

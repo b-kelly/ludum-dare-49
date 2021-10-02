@@ -13,14 +13,12 @@ export interface DigResults {
     collectedResource: boolean;
     triggeredCollapse: boolean;
     playerDeathReason: PlayerDeathReason;
-    spawnedTiles: number;
 }
 
 const EMPTY_RESULTS = (): DigResults => ({
     collectedResource: false,
     triggeredCollapse: false,
     playerDeathReason: PlayerDeathReason.None,
-    spawnedTiles: 0,
 });
 
 const MAX_STABILITY = 8;
@@ -114,13 +112,13 @@ export class World extends Phaser.Tilemaps.Tilemap {
         }
 
         // the lower the stability of the tile, the higher the chance of a collapse
-        results.triggeredCollapse =
+        const triggeredCollapse =
             Math.floor(Math.random() * (instability * INSTABILITY_MODIFIER)) >
             0;
-        if (results.triggeredCollapse) {
+        if (triggeredCollapse) {
             // CAAAAAVE IIIINNNNN!
             const collapse = this.collapseFromTile(target, instability, origin);
-            results.spawnedTiles = collapse.count;
+            results.triggeredCollapse = collapse.count > 0;
             results.playerDeathReason = collapse.spawnedOnOrigin
                 ? PlayerDeathReason.Collapse
                 : PlayerDeathReason.None;

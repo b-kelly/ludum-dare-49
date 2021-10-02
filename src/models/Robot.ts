@@ -2,7 +2,7 @@ import { TILE_WIDTH } from "../config";
 import type { GameScene } from "../scenes/GameScene";
 import { Asset, MoveDirection, PlayerState } from "./shared";
 
-const POWER_DEGREDATION_S = 60;
+const POWER_DEGREDATION_S = 120;
 const POWER_DEGREDATION_RATE_MS = 1000;
 
 const RECOVERY_DEGREDATION_S = 60;
@@ -161,7 +161,10 @@ export class Robot extends Phaser.GameObjects.Sprite {
     }
 
     addInstability(): void {
-        this.instabilities += 1;
+        this.instabilities = Math.min(
+            this.instabilities + 1,
+            TOTAL_INSTABILITY_DIFFICULTY_THRESHOLD
+        );
     }
 
     degradePower(currentTime: number): boolean {
@@ -172,8 +175,8 @@ export class Robot extends Phaser.GameObjects.Sprite {
         return this.recoveryMeter.degrade(currentTime, this.resourceCount);
     }
 
-    expendRecovery(currentTime: number): void {
-        this.recoveryMeter.update(this.recoveryMeter.maxValue, currentTime);
+    expendRecovery(): void {
+        this.recoveryMeter.update(this.recoveryMeter.maxValue, -1);
         this.recoveriesUsed += 1;
     }
 
