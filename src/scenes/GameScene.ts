@@ -7,7 +7,6 @@ import {
     ControlsHandler,
     MoveDirection,
     PlayerState,
-    SetControls,
 } from "../models/shared";
 import { DigResults, PlayerDeathReason, World } from "../models/World";
 
@@ -19,6 +18,8 @@ enum InstabilityType {
 
 /** Value between 0 and 100; percent points between power instability triggers */
 const PERCENT_POWER_INSTABILITY_THRESHOLD = 10;
+/** Value between 0 and 100; at what % does the instability get harder */
+const PERCENT_POWER_DIFFICULTY_THRESHOLD = 50;
 
 export class GameScene extends Phaser.Scene {
     private robot: Robot;
@@ -59,7 +60,7 @@ export class GameScene extends Phaser.Scene {
         const cave = new Cave(this.width, this.height);
         Chrome.displayMap(cave);
 
-        this.initDefaultControls();
+        this.controls = new ControlsHandler(this);
         this.updateChrome();
 
         // create the tilemap
@@ -99,10 +100,10 @@ export class GameScene extends Phaser.Scene {
 
     update(time: number): void {
         this.updateHandleRobotState(time);
-        this.updateHandleControls();
+        this.updateHandleControls(time);
     }
 
-    private updateHandleControls() {
+    private updateHandleControls(time: number) {
         if (this.controls.set.up.isDown) {
             this.robot.setDirection(MoveDirection.Up);
         } else if (this.controls.set.down.isDown) {
@@ -117,7 +118,7 @@ export class GameScene extends Phaser.Scene {
 
         if (!this.currentlyDigging && this.controls.set.dig.isDown) {
             const digResults = this.world.dig(this.robot.pState);
-            this.handleDig(digResults);
+            this.handleDig(digResults, time);
         }
 
         this.currentlyDigging = this.controls.set.dig.isDown;
@@ -125,80 +126,107 @@ export class GameScene extends Phaser.Scene {
 
     private updateHandleRobotState(time: number) {
         const degraded = this.robot.degradePower(time);
-        if (degraded) {
-            const state = this.robot.pState;
-            Chrome.updatePowerMeter(state.powerPercentage);
+        const charged = this.robot.chargeRecovery(time);
 
+        const state = this.robot.pState;
+
+        if (degraded) {
             if (state.powerPercentage <= 0) {
                 this.handleRobotDeath(PlayerDeathReason.NoPower);
             } else {
                 this.triggerInstability(
                     InstabilityType.PowerDegredation,
-                    null,
                     state
                 );
             }
         }
+
+        if (charged && state.recoveryPercentage >= 100) {
+            this.triggerRecovery();
+        }
+
+        if (degraded || charged) {
+            Chrome.updateMeters(state);
+        }
     }
 
-    private handleDig(digResults: DigResults) {
+    private handleDig(digResults: DigResults, time: number) {
         if (digResults?.playerDeathReason !== PlayerDeathReason.None) {
             this.handleRobotDeath(digResults.playerDeathReason);
             return;
         }
 
+        const state = this.robot.pState;
         if (digResults.collectedResource) {
-            this.robot.addResource();
-            Chrome.updatePowerMeter(this.robot.pState.powerPercentage);
+            this.robot.addResource(time);
+            this.controls.revertToDefault();
+            Chrome.updateMeters(state);
         }
 
         if (digResults.triggeredCollapse) {
-            this.triggerInstability(InstabilityType.Collapse, digResults);
+            this.triggerInstability(
+                InstabilityType.Collapse,
+                state,
+                digResults
+            );
         }
     }
 
     private triggerInstability(
         type: InstabilityType,
-        digResults?: DigResults,
-        state?: PlayerState
+        state: PlayerState,
+        digResults?: DigResults
     ) {
         if (type === InstabilityType.None) {
             return;
         }
 
+        const isDifficult =
+            state.powerPercentage >= PERCENT_POWER_DIFFICULTY_THRESHOLD;
+
         if (type === InstabilityType.Collapse) {
-            // scramble all controls; if player collected a resource, then scramble close to wasd
-            this.controls.scrambleAll(digResults?.triggeredCollapse ?? false);
+            if (isDifficult) {
+                // scramble all controls; if player collected a resource, then scramble close to wasd
+                this.controls.scrambleAll(
+                    digResults?.triggeredCollapse ?? false
+                );
+            }
         } else if (type === InstabilityType.PowerDegredation) {
-            const powerPercent = state?.powerPercentage ?? 0;
-            if (this.lastPowerInstabilityPercentage <= 0) {
-                this.lastPowerInstabilityPercentage = powerPercent;
-            } else {
-                const lastValue = Math.floor(
-                    this.lastPowerInstabilityPercentage /
-                        PERCENT_POWER_INSTABILITY_THRESHOLD
-                );
-                const currValue = Math.floor(
-                    powerPercent / PERCENT_POWER_INSTABILITY_THRESHOLD
-                );
-                const diff = Math.abs(lastValue - currValue);
-
-                // we've hit the percent threshold, so cause some havoc
-                if (diff > 0) {
-                    console.log(
-                        `Causing instability due to power loss; ${diff} times`
-                    );
-                    // for every PERCENT_POWER_INSTABILITY_THRESHOLD% of power, scramble one control
-                    for (let i = 0; i < diff; i++) {
-                        this.controls.scrambleSingle();
-                    }
-
-                    this.lastPowerInstabilityPercentage = powerPercent;
+            const diff = this.getPowerDegredationDiff(state.powerPercentage);
+            // we've hit the percent threshold, so cause some havoc
+            if (diff > 0) {
+                // for every PERCENT_POWER_INSTABILITY_THRESHOLD% of power, scramble one control
+                for (let i = 0; i < diff; i++) {
+                    this.controls.scrambleSingle(isDifficult);
                 }
+
+                this.lastPowerInstabilityPercentage = state.powerPercentage;
             }
         }
 
         this.updateChrome();
+    }
+
+    private getPowerDegredationDiff(currentPercentage: number) {
+        if (this.lastPowerInstabilityPercentage <= 0) {
+            this.lastPowerInstabilityPercentage = currentPercentage;
+            return 0;
+        } else {
+            const lastValue = Math.floor(
+                this.lastPowerInstabilityPercentage /
+                    PERCENT_POWER_INSTABILITY_THRESHOLD
+            );
+            const currValue = Math.floor(
+                currentPercentage / PERCENT_POWER_INSTABILITY_THRESHOLD
+            );
+            const diff = Math.abs(lastValue - currValue);
+
+            return diff;
+        }
+    }
+
+    private triggerRecovery() {
+        //TODO
     }
 
     private handleRobotDeath(reason: PlayerDeathReason) {
@@ -206,19 +234,6 @@ export class GameScene extends Phaser.Scene {
             reason: PlayerDeathReason[reason],
             score: this.robot.pState.resourceCount,
         });
-    }
-
-    private initDefaultControls() {
-        const controls: SetControls = {
-            up: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W),
-            down: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S),
-            left: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A),
-            right: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D),
-            dig: this.input.keyboard.addKey(
-                Phaser.Input.Keyboard.KeyCodes.SPACE
-            ),
-        };
-        this.controls = new ControlsHandler(this, controls);
     }
 
     private updateChrome() {

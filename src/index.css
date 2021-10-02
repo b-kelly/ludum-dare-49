@@ -26,14 +26,22 @@ canvas {
     flex-basis: calc(100% / 3);
 }
 
-.power-meter {
+.meter {
     width: 100%;
     height: 10px;
     background-color: black;
 }
 
-.power-meter__bar {
-    width: var(--power-percent, 0%);
+.meter--power {
+    color: blue;
+}
+
+.meter--recovery {
+    color: yellow;
+}
+
+.meter__bar {
+    width: var(--percent-filled, 0%);
     height: 10px;
-    background-color: blue;
+    background-color: currentColor;
 }

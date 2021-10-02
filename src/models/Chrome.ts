@@ -1,5 +1,5 @@
 import { Cave, CellState } from "./Cave";
-import { SetControls } from "./shared";
+import { PlayerState, SetControls } from "./shared";
 
 class ChromeHandler {
     private reverseKeycodeMapping: { [keycode: number]: string };
@@ -74,11 +74,17 @@ class ChromeHandler {
         });
     }
 
-    updatePowerMeter(powerPercent: number) {
-        const el = this.get(".js-power-meter");
+    updateMeters(state: PlayerState) {
+        let el = this.get(".js-power-meter");
         el.style.setProperty(
-            "--power-percent",
-            `${Math.max(0, powerPercent)}%`
+            "--percent-filled",
+            `${Math.max(0, state.powerPercentage)}%`
+        );
+
+        el = this.get(".js-recover-meter");
+        el.style.setProperty(
+            "--percent-filled",
+            `${Math.max(0, state.recoveryPercentage)}%`
         );
     }
 

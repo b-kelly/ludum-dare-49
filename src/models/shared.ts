@@ -57,21 +57,27 @@ function ridx(count: number) {
 
 export class ControlsHandler {
     scene: Phaser.Scene;
-    set: SetControls;
+    set: SetControls = {
+        up: null,
+        down: null,
+        left: null,
+        right: null,
+        dig: null,
+    };
 
-    constructor(scene: Phaser.Scene, controls: SetControls) {
+    constructor(scene: Phaser.Scene) {
         this.scene = scene;
-        this.set = controls;
+        this.revertToDefault();
     }
 
     scrambleAll(closeToWasd: boolean): void {
         const controls = Object.keys(this.set) as Array<keyof SetControls>;
         for (const control of controls) {
-            this.scrambleSingle(control, closeToWasd);
+            this.scrambleSingle(closeToWasd, control);
         }
     }
 
-    scrambleSingle(control?: keyof SetControls, closeToWasd = false): void {
+    scrambleSingle(closeToWasd = false, control?: keyof SetControls): void {
         control = control || this.getRandomControl();
         let keyScrambled = false;
         while (!keyScrambled) {
@@ -85,6 +91,14 @@ export class ControlsHandler {
             this.registerKey(control, keycode);
             keyScrambled = true;
         }
+    }
+
+    revertToDefault(): void {
+        this.registerKey("up", Phaser.Input.Keyboard.KeyCodes.W);
+        this.registerKey("down", Phaser.Input.Keyboard.KeyCodes.S);
+        this.registerKey("left", Phaser.Input.Keyboard.KeyCodes.A);
+        this.registerKey("right", Phaser.Input.Keyboard.KeyCodes.D);
+        this.registerKey("dig", Phaser.Input.Keyboard.KeyCodes.SPACE);
     }
 
     private getRandomControl(): keyof SetControls {
@@ -119,7 +133,9 @@ export class ControlsHandler {
     }
 
     private registerKey(control: keyof SetControls, keycode: number): void {
-        this.scene.input.keyboard.removeKey(this.set[control]);
+        if (this.set[control]) {
+            this.scene.input.keyboard.removeKey(this.set[control]);
+        }
         this.set[control] = this.scene.input.keyboard.addKey(keycode);
     }
 
@@ -137,6 +153,6 @@ export interface PlayerState {
     location: Phaser.Math.Vector2;
     resourceCount: number;
     facing: MoveDirection;
-    instability: number;
     powerPercentage: number;
+    recoveryPercentage: number;
 }

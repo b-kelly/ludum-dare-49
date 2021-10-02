@@ -2,15 +2,74 @@ import { TILE_WIDTH } from "../config";
 import type { GameScene } from "../scenes/GameScene";
 import { Asset, MoveDirection, PlayerState } from "./shared";
 
-const MAX_INSTABILITY = 100;
-
-const _SECONDS_UNTIL_POWER_LOSS = 60;
+const POWER_DEGREDATION_S = 60;
 const POWER_DEGREDATION_RATE_MS = 1000;
-const MAX_POWER_LEVEL =
-    (_SECONDS_UNTIL_POWER_LOSS * 1000) / POWER_DEGREDATION_RATE_MS;
+
+const RECOVERY_DEGREDATION_S = 30;
+const RECOVERY_DEGREDATION_RATE_MS = 1000;
 
 /** Value between 0 and 1, where 1 completely refills the power bar */
 const RESOURCE_REFILL_PERCENT = 1;
+
+class Meter {
+    lastUpdateTime = -1;
+
+    secondsUntilZero: number;
+    degredationRateMs: number;
+
+    private _maxValue: number = null;
+    get maxValue() {
+        return (
+            this._maxValue ??
+            (this.secondsUntilZero * 1000) / this.degredationRateMs
+        );
+    }
+
+    private _value = 0;
+    get value() {
+        return this._value;
+    }
+
+    get percent() {
+        return (this._value / this.maxValue) * 100;
+    }
+
+    constructor(secondsUntilZero: number, degredationRateMs: number) {
+        this.secondsUntilZero = secondsUntilZero;
+        this.degredationRateMs = degredationRateMs;
+        this._value = this.maxValue;
+    }
+
+    update(value: number, time: number) {
+        this._value = value;
+        this.lastUpdateTime = time;
+    }
+
+    refill(amount: number, time: number) {
+        this._value = Math.min(this.maxValue, this._value + amount);
+        this.lastUpdateTime = time;
+    }
+
+    degrade(currentTime: number, modifier = 0) {
+        if (this.lastUpdateTime === -1) {
+            this.lastUpdateTime = currentTime;
+            return false;
+        }
+
+        const timeDelta = currentTime - this.lastUpdateTime;
+        const powerDegredation = Math.floor(
+            timeDelta / POWER_DEGREDATION_RATE_MS
+        );
+        const powerShouldDegrade = powerDegredation > 0;
+
+        if (powerShouldDegrade) {
+            const newPowerLevel = this._value - powerDegredation - modifier;
+            this.update(Math.max(newPowerLevel, 0), currentTime);
+        }
+
+        return powerShouldDegrade;
+    }
+}
 
 export class Robot extends Phaser.GameObjects.Sprite {
     declare body: Phaser.Physics.Arcade.Body;
@@ -18,16 +77,24 @@ export class Robot extends Phaser.GameObjects.Sprite {
 
     private facing: MoveDirection = MoveDirection.Stop;
     private resourceCount = 0;
-    private currentPowerLevel = MAX_POWER_LEVEL;
-    private lastPowerDegredationTime = -1;
+
+    private powerMeter = new Meter(
+        POWER_DEGREDATION_S,
+        POWER_DEGREDATION_RATE_MS
+    );
+
+    private recoveryMeter = new Meter(
+        RECOVERY_DEGREDATION_S,
+        RECOVERY_DEGREDATION_RATE_MS
+    );
 
     get pState(): PlayerState {
         return {
             location: this.getCenter(),
             resourceCount: this.resourceCount,
             facing: this.facing,
-            instability: Math.min(MAX_INSTABILITY, this.resourceCount),
-            powerPercentage: (this.currentPowerLevel / MAX_POWER_LEVEL) * 100,
+            powerPercentage: this.powerMeter.percent,
+            recoveryPercentage: 100 - this.recoveryMeter.percent,
         };
     }
 
@@ -71,34 +138,19 @@ export class Robot extends Phaser.GameObjects.Sprite {
         this.playAnimation(command);
     }
 
-    addResource(): void {
+    addResource(time: number): void {
         this.resourceCount += 1;
         // picking up a resource refills power by a certain amount
-        const refillAmount = RESOURCE_REFILL_PERCENT * MAX_POWER_LEVEL;
-        this.currentPowerLevel = Math.min(
-            this.currentPowerLevel + refillAmount,
-            MAX_POWER_LEVEL
-        );
+        const refillAmount = RESOURCE_REFILL_PERCENT * this.powerMeter.maxValue;
+        this.powerMeter.refill(refillAmount, time);
     }
 
     degradePower(currentTime: number): boolean {
-        if (this.lastPowerDegredationTime === -1) {
-            this.lastPowerDegredationTime = currentTime;
-            return false;
-        }
+        return this.powerMeter.degrade(currentTime, this.resourceCount);
+    }
 
-        const timeDelta = currentTime - this.lastPowerDegredationTime;
-        const powerDegredation = Math.floor(
-            timeDelta / POWER_DEGREDATION_RATE_MS
-        );
-        const powerShouldDegrade = powerDegredation > 0;
-
-        if (powerShouldDegrade) {
-            this.currentPowerLevel -= powerDegredation + this.resourceCount;
-            this.lastPowerDegredationTime = currentTime;
-        }
-
-        return powerShouldDegrade;
+    chargeRecovery(currentTime: number): boolean {
+        return this.recoveryMeter.degrade(currentTime, this.resourceCount);
     }
 
     private playAnimation(command: MoveDirection): void {
