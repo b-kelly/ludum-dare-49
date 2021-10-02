@@ -40,6 +40,10 @@ canvas {
     color: yellow;
 }
 
+.meter--charged {
+    outline: 1px solid red;
+}
+
 .meter__bar {
     width: var(--percent-filled, 0%);
     height: 10px;

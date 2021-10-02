@@ -1,9 +1,11 @@
 export declare class GameScene extends Phaser.Scene {
     private robot;
     private controls;
+    private recoveryKey;
     private world;
     private currentlyDigging;
     private lastPowerInstabilityPercentage;
+    private recoveryState;
     constructor();
     private get width();
     private get height();

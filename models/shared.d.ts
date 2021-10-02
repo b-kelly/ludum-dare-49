@@ -16,6 +16,12 @@ export interface SetControls {
     right: Phaser.Input.Keyboard.Key;
     dig: Phaser.Input.Keyboard.Key;
 }
+export declare enum RecoveryState {
+    None = 0,
+    Available = 1
+}
+/** Key to press to start recovery mode; this never scrambles, so don't place it in the controls handler */
+export declare const RECOVERY_KEY: number;
 export declare class ControlsHandler {
     scene: Phaser.Scene;
     set: SetControls;

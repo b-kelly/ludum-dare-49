@@ -13,5 +13,6 @@ export declare class Robot extends Phaser.GameObjects.Sprite {
     addResource(time: number): void;
     degradePower(currentTime: number): boolean;
     chargeRecovery(currentTime: number): boolean;
+    expendRecovery(currentTime: number): void;
     private playAnimation;
 }

@@ -1,10 +1,10 @@
 import { Cave } from "./Cave";
-import { PlayerState, SetControls } from "./shared";
+import { PlayerState, RecoveryState, SetControls } from "./shared";
 declare class ChromeHandler {
     private reverseKeycodeMapping;
     private controlElements;
     displayMap(cave: Cave): void;
-    displayMoveControls(controls: SetControls): void;
+    displayState(controls: SetControls, recoverState: RecoveryState): void;
     updateMeters(state: PlayerState): void;
     private get;
 }
