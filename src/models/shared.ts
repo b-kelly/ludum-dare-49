@@ -64,6 +64,9 @@ const DEFAULT_CONTROLS = {
     dig: Phaser.Input.Keyboard.KeyCodes.SPACE,
 };
 
+/** Key to press to start recovery mode; this never scrambles, so don't place it in the controls handler */
+export const RECOVERY_KEY = Phaser.Input.Keyboard.KeyCodes.ESC;
+
 function ridx(count: number) {
     return Math.floor(Math.random() * count);
 }

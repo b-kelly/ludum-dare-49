@@ -1,5 +1,10 @@
 import { Cave, CellState } from "./Cave";
-import { PlayerState, RecoveryState, SetControls } from "./shared";
+import {
+    PlayerState,
+    RecoveryState,
+    RECOVERY_KEY,
+    SetControls,
+} from "./shared";
 
 class ChromeHandler {
     private reverseKeycodeMapping: { [keycode: number]: string };
@@ -76,7 +81,7 @@ class ChromeHandler {
         let recoverText: string;
         switch (recoverState) {
             case RecoveryState.Available:
-                recoverText = "Press ESC to activate!";
+                recoverText = `Press ${this.reverseKeycodeMapping[RECOVERY_KEY]} to activate!`;
                 break;
             default:
                 recoverText = "Charging...";

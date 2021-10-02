@@ -8,6 +8,7 @@ import {
     MoveDirection,
     PlayerState,
     RecoveryState,
+    RECOVERY_KEY,
 } from "../models/shared";
 import { DigResults, PlayerDeathReason, World } from "../models/World";
 
@@ -21,9 +22,6 @@ enum InstabilityType {
 const PERCENT_POWER_INSTABILITY_THRESHOLD = 20;
 /** Value between 0 and 100; at what % does the instability get harder */
 const PERCENT_POWER_DIFFICULTY_THRESHOLD = 50;
-
-/** Key to press to start recovery mode; this never scrambles, so don't place it in the controls handler */
-const RECOVERY_KEY = Phaser.Input.Keyboard.KeyCodes.ESC;
 
 export class GameScene extends Phaser.Scene {
     private robot: Robot;
@@ -196,7 +194,7 @@ export class GameScene extends Phaser.Scene {
         }
 
         const isDifficult =
-            state.powerPercentage >= PERCENT_POWER_DIFFICULTY_THRESHOLD;
+            state.powerPercentage <= PERCENT_POWER_DIFFICULTY_THRESHOLD;
 
         if (type === InstabilityType.Collapse) {
             if (isDifficult) {
