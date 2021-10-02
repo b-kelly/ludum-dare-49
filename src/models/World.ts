@@ -6,6 +6,7 @@ import { Asset, MoveDirection, PlayerState } from "./shared";
 export enum PlayerDeathReason {
     None,
     Collapse,
+    NoPower,
 }
 
 export interface DigResults {

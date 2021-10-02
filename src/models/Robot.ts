@@ -3,8 +3,14 @@ import type { GameScene } from "../scenes/GameScene";
 import { Asset, MoveDirection, PlayerState } from "./shared";
 
 const MAX_INSTABILITY = 100;
-const MAX_POWER_LEVEL = 100;
-const DELTA_BETWEEN_POWER_LEVELS = 100;
+
+const _SECONDS_UNTIL_POWER_LOSS = 60;
+const POWER_DEGREDATION_RATE_MS = 1000;
+const MAX_POWER_LEVEL =
+    (_SECONDS_UNTIL_POWER_LOSS * 1000) / POWER_DEGREDATION_RATE_MS;
+
+/** Value between 0 and 1, where 1 completely refills the power bar */
+const RESOURCE_REFILL_PERCENT = 1;
 
 export class Robot extends Phaser.GameObjects.Sprite {
     declare body: Phaser.Physics.Arcade.Body;
@@ -21,6 +27,7 @@ export class Robot extends Phaser.GameObjects.Sprite {
             resourceCount: this.resourceCount,
             facing: this.facing,
             instability: Math.min(MAX_INSTABILITY, this.resourceCount),
+            powerPercentage: (this.currentPowerLevel / MAX_POWER_LEVEL) * 100,
         };
     }
 
@@ -66,6 +73,12 @@ export class Robot extends Phaser.GameObjects.Sprite {
 
     addResource(): void {
         this.resourceCount += 1;
+        // picking up a resource refills power by a certain amount
+        const refillAmount = RESOURCE_REFILL_PERCENT * MAX_POWER_LEVEL;
+        this.currentPowerLevel = Math.min(
+            this.currentPowerLevel + refillAmount,
+            MAX_POWER_LEVEL
+        );
     }
 
     degradePower(currentTime: number): boolean {
@@ -76,7 +89,7 @@ export class Robot extends Phaser.GameObjects.Sprite {
 
         const timeDelta = currentTime - this.lastPowerDegredationTime;
         const powerDegredation = Math.floor(
-            timeDelta / DELTA_BETWEEN_POWER_LEVELS
+            timeDelta / POWER_DEGREDATION_RATE_MS
         );
         const powerShouldDegrade = powerDegredation > 0;
 

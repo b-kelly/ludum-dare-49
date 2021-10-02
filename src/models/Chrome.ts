@@ -6,7 +6,7 @@ class ChromeHandler {
     private controlElements: { [key: string]: HTMLElement } = {};
 
     displayMap(cave: Cave): void {
-        const display = this.getElement<HTMLCanvasElement>(".js-map");
+        const display = this.get<HTMLCanvasElement>(".js-map");
         const map = cave.map;
 
         const ctx = display.getContext("2d");
@@ -63,7 +63,7 @@ class ChromeHandler {
         }
 
         Object.keys(controls).forEach((control: keyof Controls) => {
-            const element = this.getElement(`.js-move-control-${control}`);
+            const element = this.get(`.js-move-control-${control}`);
             if (!element) {
                 return;
             }
@@ -74,9 +74,12 @@ class ChromeHandler {
         });
     }
 
-    private getElement<T extends HTMLElement = HTMLElement>(
-        selector: string
-    ): T {
+    updatePowerMeter(powerPercent: number) {
+        const el = this.get(".js-power-meter");
+        el.style.setProperty("--power-percent", `${powerPercent}%`);
+    }
+
+    private get<T extends HTMLElement = HTMLElement>(selector: string): T {
         if (selector in this.controlElements) {
             return this.controlElements[selector] as T;
         }

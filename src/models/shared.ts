@@ -24,4 +24,5 @@ export interface PlayerState {
     resourceCount: number;
     facing: MoveDirection;
     instability: number;
+    powerPercentage: number;
 }

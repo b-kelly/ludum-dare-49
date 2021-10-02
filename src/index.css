@@ -25,3 +25,15 @@ canvas {
 .chrome-container > div {
     flex-basis: calc(100% / 3);
 }
+
+.power-meter {
+    width: 100%;
+    height: 10px;
+    background-color: black;
+}
+
+.power-meter__bar {
+    width: var(--power-percent, 0%);
+    height: 10px;
+    background-color: blue;
+}

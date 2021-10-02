@@ -81,7 +81,8 @@ export class GameScene extends Phaser.Scene {
         );
     }
 
-    update(): void {
+    update(time: number): void {
+        this.updateHandleRobotState(time);
         this.updateHandleControls();
     }
 
@@ -100,18 +101,39 @@ export class GameScene extends Phaser.Scene {
 
         if (!this.currentlyDigging && this.controls.dig.isDown) {
             const digResults = this.world.dig(this.robot.pState);
-            this.triggerInstability(digResults);
+            this.handleDig(digResults);
         }
 
         this.currentlyDigging = this.controls.dig.isDown;
     }
 
-    private triggerInstability(digResults?: DigResults) {
+    private updateHandleRobotState(time: number) {
+        const degraded = this.robot.degradePower(time);
+        if (degraded) {
+            const state = this.robot.pState;
+            Chrome.updatePowerMeter(state.powerPercentage);
+
+            if (state.powerPercentage <= 0) {
+                this.handleRobotDeath(PlayerDeathReason.NoPower);
+            }
+        }
+    }
+
+    private handleDig(digResults: DigResults) {
         console.log(digResults);
         if (digResults?.playerDeathReason !== PlayerDeathReason.None) {
-            // TODO
-            console.log("You died!");
+            this.handleRobotDeath(digResults.playerDeathReason);
         }
+
+        if (digResults.collectedResource) {
+            this.robot.addResource();
+            Chrome.updatePowerMeter(this.robot.pState.powerPercentage);
+        }
+    }
+
+    private handleRobotDeath(reason: PlayerDeathReason) {
+        // TODO
+        console.log(`You died due to ${PlayerDeathReason[reason]}`);
     }
 
     private initDefaultControls() {
