@@ -6,7 +6,7 @@ export function displayMap(cave: Cave): void {
 
     const ctx = display.getContext("2d");
     const width = 10;
-    const scale = 10; // tweak this to make the display physically larger, scaling the canvas view to match
+    const scale = 1; // increase this to make the display physically larger, scaling the canvas view to match
     const ctxScale = (1 / width) * scale;
 
     display.width = cave.size.width * scale;
@@ -30,16 +30,17 @@ export function displayMap(cave: Cave): void {
                     ctx.fillStyle = "black";
             }
 
-            ctx.fillRect(j * width, i * width, width, width);
+            ctx.fillRect(i * width, j * width, width, width);
         }
     }
 
     // draw the player start pos
     ctx.fillStyle = "green";
+    const playerWidth = width / 2; // show some of the square behind the player for debugging
     ctx.fillRect(
-        cave.startLocation.x * width,
-        cave.startLocation.y * width,
-        width,
-        width
+        cave.startLocation.x * width + playerWidth / 2,
+        cave.startLocation.y * width + playerWidth / 2,
+        playerWidth,
+        playerWidth
     );
 }

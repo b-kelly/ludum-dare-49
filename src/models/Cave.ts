@@ -156,7 +156,7 @@ export class Cave {
                 }
 
                 if (
-                    right <= this._size.width &&
+                    right < this._size.width &&
                     map[right][i] === CellState.Open
                 ) {
                     return { x: right, y: i };
