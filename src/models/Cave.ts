@@ -1,0 +1,138 @@
+export enum CellState {
+    Filled,
+    Open,
+    Wall,
+    Resource,
+}
+
+/** Generates a connected cave with cellular automata */
+export class Cave {
+    private _map: CellState[][] = [];
+    private readonly _size: { width: number; height: number };
+
+    private readonly chanceToStartOpen = 0.4;
+    private readonly chanceToGenerateResource = 0.01;
+    private readonly requiredNeighborsForLife = 3;
+    private readonly requiredNeighborsForBirth = 4;
+    private readonly iterations = 2;
+
+    get map(): CellState[][] {
+        return this._map;
+    }
+
+    get size(): { width: number; height: number } {
+        return this._size;
+    }
+
+    constructor(width: number, height: number) {
+        this._size = { width, height };
+        this._map = this.generateCave();
+    }
+
+    /** Completely generates a cave */
+    private generateCave() {
+        let map = this.initializeMap();
+        for (let i = 0; i < this.iterations; i++) {
+            map = this.runSimulationStep(map);
+        }
+
+        // identify caverns and walls
+        this.markWallsAndPlaceResources(map);
+
+        return map;
+    }
+
+    /** Initializes a map with seed cells placed */
+    private initializeMap() {
+        const map: CellState[][] = [];
+        // init an empty map with random cells burrowed out
+        for (let i = 0; i < this._size.width; i++) {
+            map[i] = [];
+            for (let j = 0; j < this._size.height; j++) {
+                map[i][j] =
+                    Math.random() < this.chanceToStartOpen
+                        ? CellState.Open
+                        : CellState.Filled;
+            }
+        }
+
+        return map;
+    }
+
+    /** Get the count of open neighbors around a given cell */
+    private getOpenNeighbors(map: CellState[][], x: number, y: number) {
+        let openNeighbors = 0;
+        for (let i = -1; i < 2; i++) {
+            for (let j = -1; j < 2; j++) {
+                if (i == 0 && j == 0) {
+                    continue;
+                }
+                const xNeighbor = x + i;
+                const yNeighbor = y + j;
+
+                // consider neighbors that are off the map as "open"
+                if (
+                    xNeighbor < 0 ||
+                    yNeighbor < 0 ||
+                    xNeighbor >= this._size.width ||
+                    yNeighbor >= this._size.height
+                ) {
+                    openNeighbors += 1;
+                }
+
+                // if this neighbor is open, increment the count
+                else if (map[xNeighbor][yNeighbor] === CellState.Open) {
+                    openNeighbors += 1;
+                }
+            }
+        }
+        return openNeighbors;
+    }
+
+    /** Runs a single cellular automata simulation step on a map */
+    private runSimulationStep(currentMap: CellState[][]) {
+        const newMap: CellState[][] = [];
+        for (let i = 0; i < this._size.width; i++) {
+            newMap[i] = [];
+            for (let j = 0; j < this._size.height; j++) {
+                // check how many neighbors this cell has
+                const openNeighbors = this.getOpenNeighbors(currentMap, i, j);
+
+                // live cells stay alive if they have enough neighbors
+                if (currentMap[i][j] === CellState.Open) {
+                    newMap[i][j] =
+                        openNeighbors >= this.requiredNeighborsForLife
+                            ? CellState.Open
+                            : CellState.Filled;
+                } else {
+                    // dead cells come alive if they have enough neighbors
+                    newMap[i][j] =
+                        openNeighbors > this.requiredNeighborsForBirth
+                            ? CellState.Open
+                            : CellState.Filled;
+                }
+            }
+        }
+
+        return newMap;
+    }
+
+    /** Mark all the cavern walls in place, placing resources on them if able */
+    private markWallsAndPlaceResources(map: CellState[][]) {
+        // run through each cell mark it as a wall if it has any open neighbors
+        for (let i = 0; i < this._size.width; i++) {
+            for (let j = 0; j < this._size.height; j++) {
+                const cell = map[i][j];
+                if (
+                    cell === CellState.Filled &&
+                    this.getOpenNeighbors(map, i, j) > 0
+                ) {
+                    map[i][j] =
+                        Math.random() < this.chanceToGenerateResource
+                            ? CellState.Resource
+                            : CellState.Wall;
+                }
+            }
+        }
+    }
+}
