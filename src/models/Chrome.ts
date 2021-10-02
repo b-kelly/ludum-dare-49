@@ -6,11 +6,12 @@ export function displayMap(cave: Cave): void {
 
     const ctx = display.getContext("2d");
     const width = 10;
-    console.log(cave.startLocation);
+    const scale = 10; // tweak this to make the display physically larger, scaling the canvas view to match
+    const ctxScale = (1 / width) * scale;
 
-    display.width = cave.size.width * 10;
-    display.height = cave.size.height * 10;
-    //ctx.scale(1 / width, 1 / width);
+    display.width = cave.size.width * scale;
+    display.height = cave.size.height * scale;
+    ctx.scale(ctxScale, ctxScale);
 
     for (let i = 0; i < map.length; i++) {
         for (let j = 0; j < map[i].length; j++) {
