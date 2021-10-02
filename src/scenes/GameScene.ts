@@ -62,7 +62,7 @@ export class GameScene extends Phaser.Scene {
     create(): void {
         // TODO yeah, this is creating a cave that is roughly ((width * height) * TILE_WIDTH^2) in size...
         const cave = new Cave(this.width, this.height);
-        Chrome.displayMap(cave);
+        //Chrome.displayMap(cave); // DEBUG
 
         this.controls = new ControlsHandler(this);
         this.recoveryKey = this.input.keyboard.addKey(RECOVERY_KEY);

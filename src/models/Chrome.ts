@@ -3,15 +3,38 @@ import {
     PlayerState,
     RecoveryState,
     RECOVERY_KEY,
+    ridx,
     SetControls,
 } from "./shared";
+
+export enum MessageType {
+    None,
+    Collapse,
+    PowerDegraded,
+    SmallScramble,
+    LargeScramble,
+    Recovered,
+}
+
+const MESSAGES: Record<MessageType, string[]> = {
+    [MessageType.None]: [],
+    [MessageType.Collapse]: ["Collapse!"],
+    [MessageType.PowerDegraded]: ["Short circuit!"],
+    [MessageType.SmallScramble]: ["Small scramble"],
+    [MessageType.LargeScramble]: ["Large scramble"],
+    [MessageType.Recovered]: ["Recovered!"],
+};
+
+const MESSAGE_TIMEOUT_MS = 5000;
 
 class ChromeHandler {
     private reverseKeycodeMapping: { [keycode: number]: string };
     private controlElements: { [key: string]: HTMLElement } = {};
+    private messageTimeoutId: number;
 
     displayMap(cave: Cave): void {
         const display = this.get<HTMLCanvasElement>(".js-map");
+        display.classList.remove("hide-debug");
         const map = cave.map;
 
         const ctx = display.getContext("2d");
@@ -106,6 +129,27 @@ class ChromeHandler {
             "meter--charged",
             state.recoveryPercentage >= 100
         );
+    }
+
+    showMessage(type: MessageType) {
+        const messages = MESSAGES[type] ?? [];
+        this.hideMessage();
+
+        if (!messages.length) {
+            return;
+        }
+
+        this.get(".js-message").innerText = messages[ridx(messages.length)];
+
+        this.messageTimeoutId = window.setTimeout(
+            () => this.hideMessage(),
+            MESSAGE_TIMEOUT_MS
+        );
+    }
+
+    hideMessage() {
+        window.clearTimeout(this.messageTimeoutId);
+        this.get(".js-message").innerText = "";
     }
 
     private get<T extends HTMLElement = HTMLElement>(selector: string): T {

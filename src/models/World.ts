@@ -160,6 +160,7 @@ export class World extends Phaser.Tilemaps.Tilemap {
         }
 
         let spawnedTiles = 0;
+        let visibleSpawnedTiles = 0;
         let spawnedOnOrigin = false;
 
         // check each square around/including the tile to see if we spawn a new tile
@@ -185,6 +186,9 @@ export class World extends Phaser.Tilemaps.Tilemap {
                 continue;
             }
 
+            // we keep track of total spawns to not over-spawn, but we need to keep track of just the visible ones to see if it visibly collapsed
+            visibleSpawnedTiles += 1;
+
             // keep track of whether we killed the player
             if (spawnTile.x === originTile.x && spawnTile.y === originTile.y) {
                 spawnedOnOrigin = true;
@@ -194,7 +198,7 @@ export class World extends Phaser.Tilemaps.Tilemap {
         }
 
         return {
-            count: spawnedTiles,
+            count: visibleSpawnedTiles,
             spawnedOnOrigin,
         };
     }

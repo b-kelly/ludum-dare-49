@@ -49,3 +49,7 @@ canvas {
     height: 10px;
     background-color: currentColor;
 }
+
+.hide-debug {
+    display: none;
+}
