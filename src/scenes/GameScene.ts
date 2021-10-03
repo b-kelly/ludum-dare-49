@@ -192,18 +192,20 @@ export class GameScene extends Phaser.Scene {
         }
 
         const state = this.robot.pState;
-        if (digResults.collectedResource) {
-            this.robot.addResource(time);
-            this.controls.revertToDefault();
-            Chrome.updateMeters(state);
-        }
 
+        // trigger the collapse first, so we can unscramble controls afterwards if a resource was gathered
         if (digResults.triggeredCollapse) {
             this.triggerInstability(
                 InstabilityType.Collapse,
                 state,
                 digResults
             );
+        }
+
+        if (digResults.collectedResource) {
+            this.robot.addResource(time);
+            this.controls.revertToDefault();
+            Chrome.updateMeters(state);
         }
     }
 
