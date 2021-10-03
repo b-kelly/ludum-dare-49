@@ -14,6 +14,7 @@ export enum MessageType {
     PowerDegraded,
     SmallScramble,
     LargeScramble,
+    RecoveryAvailable,
     Recovered,
 }
 
@@ -23,6 +24,7 @@ const MESSAGES: Record<MessageType, string[]> = {
     [MessageType.PowerDegraded]: ["Short circuit!"],
     [MessageType.SmallScramble]: ["Small scramble"],
     [MessageType.LargeScramble]: ["Large scramble"],
+    [MessageType.RecoveryAvailable]: ["Recovery ready!"],
     [MessageType.Recovered]: ["Recovered!"],
 };
 

@@ -160,6 +160,7 @@ export class GameScene extends Phaser.Scene {
 
         if (charged && state.recoveryPercentage >= 100) {
             this.recoveryState = RecoveryState.Available;
+            this.displayMessage(MessageType.RecoveryAvailable);
         }
 
         if (degraded || charged) {
