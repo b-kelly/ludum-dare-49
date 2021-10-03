@@ -165,30 +165,36 @@ class ChromeHandler {
     }
 
     updateResourceDetector(results: ResourceSearchResults) {
-        let dirStr = "";
         const direction = results.direction;
+        const classes = [];
 
         if (direction) {
             if (direction.y < 0) {
-                dirStr += "N";
+                classes.push("n");
             } else if (direction.y > 0) {
-                dirStr += "S";
+                classes.push("s");
             }
 
             if (direction.x > 0) {
-                dirStr += "E";
+                classes.push("e");
             } else if (direction.x < 0) {
-                dirStr += "W";
+                classes.push("w");
             }
 
-            dirStr += " " + (results.isNear ? "near" : "far");
+            if (!results.isNear) {
+                classes.push("far");
+            }
         }
 
-        if (!dirStr) {
-            dirStr = "Unknown";
+        if (!classes.length) {
+            classes.push("none");
         }
 
-        this.get(".js-resource-direction").innerText = dirStr;
+        const baseClass = "resource-direction";
+
+        const el = this.get(".js-resource-direction");
+        el.className = baseClass;
+        classes.forEach((c) => el.classList.add(`${baseClass}--${c}`));
     }
 
     private appendMessage(type: MessageType) {

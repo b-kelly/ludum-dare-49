@@ -24,6 +24,7 @@ canvas {
 
 .game-container {
     text-align: center;
+    min-width: 512px;
 }
 
 .chrome-container {
@@ -84,6 +85,77 @@ canvas {
     width: var(--percent-filled, 0%);
     height: 10px;
     background-color: currentColor;
+}
+
+.resource-direction {
+    display: block;
+    width: 100%;
+    aspect-ratio: 1/1;
+    background: green;
+    border-radius: 100%;
+    position: relative;
+}
+
+.resource-direction::before,
+.resource-direction::after {
+    content: "";
+    width: 4px;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: black;
+    display: block;
+    z-index: 25;
+}
+
+.resource-direction::after {
+    top: 50%;
+    left: 0;
+    width: 100%;
+    height: 5px;
+    transform: translateY(-50%);
+}
+
+.resource-blip {
+    --none: 50%;
+    --distance: 65%;
+
+    position: absolute;
+    transform: translate(-50%, -50%);
+    width: 10px;
+    height: 10px;
+    top: var(--none);
+    left: var(--none);
+    background-color: red;
+    z-index: 50;
+    border-radius: 100%;
+}
+
+.resource-direction--far .resource-blip {
+    --distance: 80%;
+}
+
+.resource-direction--none .resource-blip {
+    display: none;
+}
+
+.resource-direction--n .resource-blip {
+    top: calc(100% - var(--distance));
+}
+
+.resource-direction--e .resource-blip {
+    left: var(--distance);
+}
+
+.resource-direction--s .resource-blip {
+    top: var(--distance);
+}
+
+.resource-direction--w .resource-blip {
+    left: calc(100% - var(--distance));
 }
 
 /* ICONS */
