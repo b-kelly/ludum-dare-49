@@ -143,20 +143,14 @@ class ChromeHandler {
     }
 
     showMessages(types: MessageType[]) {
-        let message = "";
-        this.hideMessage();
-
         types.forEach((type) => {
-            const messages = MESSAGES[type] ?? [];
-
-            if (!messages.length) {
-                return;
-            }
-
-            message += messages[ridx(messages.length)] + "\n";
+            this.appendMessage(type);
         });
 
-        this.get(".js-message").innerText = message;
+        // if the message is already showing, clear the timeout so we can extend it
+        if (this.messageTimeoutId > -1) {
+            window.clearTimeout(this.messageTimeoutId);
+        }
 
         this.messageTimeoutId = window.setTimeout(
             () => this.hideMessage(),
@@ -166,6 +160,7 @@ class ChromeHandler {
 
     hideMessage() {
         window.clearTimeout(this.messageTimeoutId);
+        this.messageTimeoutId = -1;
         this.get(".js-message").innerText = "";
     }
 
@@ -194,6 +189,18 @@ class ChromeHandler {
         }
 
         this.get(".js-resource-direction").innerText = dirStr;
+    }
+
+    private appendMessage(type: MessageType) {
+        const messages = MESSAGES[type] ?? [];
+
+        if (!messages.length) {
+            return;
+        }
+        let message = "";
+        message += messages[ridx(messages.length)] + "\n";
+        const el = this.get(".js-message");
+        el.innerText = el.innerText + message;
     }
 
     private get<T extends HTMLElement = HTMLElement>(selector: string): T {
