@@ -17,6 +17,7 @@ export enum MessageType {
     RecoveryAvailable,
     Recovered,
     ResourceAcquired,
+    DifficultyRaised,
 }
 
 const MESSAGES: Record<MessageType, string[]> = {
@@ -28,6 +29,7 @@ const MESSAGES: Record<MessageType, string[]> = {
     [MessageType.RecoveryAvailable]: ["Recovery ready!"],
     [MessageType.Recovered]: ["Recovered!"],
     [MessageType.ResourceAcquired]: ["Pickup!"],
+    [MessageType.DifficultyRaised]: ["Difficulty raised!"],
 };
 
 const MESSAGE_TIMEOUT_MS = 5000;

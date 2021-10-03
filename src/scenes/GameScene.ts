@@ -38,6 +38,7 @@ export class GameScene extends Phaser.Scene {
     private messageQueue: MessageType[] = [];
     private flags = {
         updateUi: false,
+        showedDifficultyIncreaseWarning: false,
     };
 
     constructor() {
@@ -87,6 +88,10 @@ export class GameScene extends Phaser.Scene {
             "assets/resource-acquired.wav"
         );
         this.load.audio(Asset[Asset.Dig], "assets/dig.wav");
+        this.load.audio(
+            Asset[Asset.DifficultyRaised],
+            "assets/difficulty-raised.wav"
+        );
     }
 
     create(): void {
@@ -196,6 +201,12 @@ export class GameScene extends Phaser.Scene {
         if (this.flags.updateUi) {
             this.setFlag("updateUi", false);
             Chrome.displayState(this.controls.set, this.recoveryState);
+        }
+
+        const state = this.robot.pState;
+        if (state.isDifficult && !this.flags.showedDifficultyIncreaseWarning) {
+            this.displayMessage(MessageType.DifficultyRaised);
+            this.setFlag("showedDifficultyIncreaseWarning", true);
         }
 
         const direction = this.world.getClosestResourceDirection(

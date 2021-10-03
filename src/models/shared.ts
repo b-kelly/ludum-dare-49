@@ -13,6 +13,7 @@ export enum Asset {
     ResourceAcquired,
     Death,
     Dig,
+    DifficultyRaised,
 }
 
 export enum MoveDirection {
