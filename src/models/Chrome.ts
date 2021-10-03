@@ -6,6 +6,7 @@ import {
     ridx,
     SetControls,
 } from "./shared";
+import { ResourceSearchResults } from "./World";
 
 export enum MessageType {
     None,
@@ -141,15 +142,21 @@ class ChromeHandler {
         );
     }
 
-    showMessage(type: MessageType) {
-        const messages = MESSAGES[type] ?? [];
+    showMessages(types: MessageType[]) {
+        let message = "";
         this.hideMessage();
 
-        if (!messages.length) {
-            return;
-        }
+        types.forEach((type) => {
+            const messages = MESSAGES[type] ?? [];
 
-        this.get(".js-message").innerText = messages[ridx(messages.length)];
+            if (!messages.length) {
+                return;
+            }
+
+            message += messages[ridx(messages.length)] + "\n";
+        });
+
+        this.get(".js-message").innerText = message;
 
         this.messageTimeoutId = window.setTimeout(
             () => this.hideMessage(),
@@ -160,6 +167,33 @@ class ChromeHandler {
     hideMessage() {
         window.clearTimeout(this.messageTimeoutId);
         this.get(".js-message").innerText = "";
+    }
+
+    updateResourceDetector(results: ResourceSearchResults) {
+        let dirStr = "";
+        const direction = results.direction;
+
+        if (direction) {
+            if (direction.y < 0) {
+                dirStr += "N";
+            } else if (direction.y > 0) {
+                dirStr += "S";
+            }
+
+            if (direction.x > 0) {
+                dirStr += "E";
+            } else if (direction.x < 0) {
+                dirStr += "W";
+            }
+
+            dirStr += " " + (results.isNear ? "near" : "far");
+        }
+
+        if (!dirStr) {
+            dirStr = "Unknown";
+        }
+
+        this.get(".js-resource-direction").innerText = dirStr;
     }
 
     private get<T extends HTMLElement = HTMLElement>(selector: string): T {

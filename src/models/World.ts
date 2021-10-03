@@ -15,6 +15,12 @@ export interface DigResults {
     playerDeathReason: PlayerDeathReason;
 }
 
+export interface ResourceSearchResults {
+    direction: { x: number; y: number };
+    updated: boolean;
+    isNear: boolean;
+}
+
 const EMPTY_RESULTS = (): DigResults => ({
     collectedResource: false,
     triggeredCollapse: false,
@@ -25,6 +31,12 @@ const MAX_STABILITY = 8;
 const INSTABILITY_MODIFIER = 0.5; // each point of instability has a 50% chance of triggering collapse
 
 export class World extends Phaser.Tilemaps.Tilemap {
+    private mostRecentSearch: {
+        origin: { x: number; y: number };
+        direction: ResourceSearchResults["direction"];
+        isNear: boolean;
+    } = null;
+
     get primaryLayer(): Phaser.Tilemaps.TilemapLayer {
         return this.getLayer(0).tilemapLayer;
     }
@@ -95,6 +107,73 @@ export class World extends Phaser.Tilemaps.Tilemap {
         this.fill(CellState.Open, newTileCoords.x, newTileCoords.y, 1, 1);
 
         return results;
+    }
+
+    getClosestResourceDirection(
+        origin: Phaser.Math.Vector2
+    ): ResourceSearchResults {
+        const originTile = this.getTileAtWorldXY(origin.x, origin.y);
+        if (originTile === null) {
+            return null;
+        }
+
+        if (
+            this.mostRecentSearch &&
+            this.mostRecentSearch.origin.x === originTile.x &&
+            this.mostRecentSearch.origin.y === originTile.y
+        ) {
+            return {
+                direction: { ...this.mostRecentSearch.direction },
+                updated: false,
+                isNear: this.mostRecentSearch.isNear,
+            };
+        }
+
+        const findTile = (r: number) =>
+            this.findTile(
+                (t) => t.index === CellState.Resource,
+                null,
+                originTile.x - r,
+                originTile.y - r,
+                r * 2,
+                r * 2
+            );
+
+        const distances = {
+            near: 5,
+            far: 10,
+        };
+
+        let isNear = true;
+
+        // search in the nearest 5 tiles, then expand to 10 if we can't find anything
+        let tile = findTile(distances.near);
+
+        if (!tile) {
+            tile = findTile(distances.far);
+            isNear = false;
+        }
+
+        let direction: ResourceSearchResults["direction"] = null;
+
+        if (tile) {
+            direction = {
+                x: tile.x - originTile.x,
+                y: tile.y - originTile.y,
+            };
+        }
+
+        this.mostRecentSearch = {
+            origin: { x: originTile.x, y: originTile.y },
+            direction,
+            isNear,
+        };
+
+        return {
+            direction,
+            updated: true,
+            isNear,
+        };
     }
 
     private digSideEffects(

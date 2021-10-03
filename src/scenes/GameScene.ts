@@ -1,6 +1,6 @@
 import { TILE_WIDTH } from "../config";
 import { Cave } from "../models/Cave";
-import { Chrome } from "../models/Chrome";
+import { Chrome, MessageType } from "../models/Chrome";
 import { Robot } from "../models/Robot";
 import {
     Asset,
@@ -10,7 +10,12 @@ import {
     RecoveryState,
     RECOVERY_KEY,
 } from "../models/shared";
-import { DigResults, PlayerDeathReason, World } from "../models/World";
+import {
+    DigResults,
+    PlayerDeathReason,
+    ResourceSearchResults,
+    World,
+} from "../models/World";
 
 enum InstabilityType {
     None,
@@ -30,6 +35,10 @@ export class GameScene extends Phaser.Scene {
     private currentlyDigging = false;
     private lastPowerInstabilityPercentage = 0;
     private recoveryState = RecoveryState.None;
+    private messageQueue: MessageType[] = [];
+    private flags = {
+        updateUi: false,
+    };
 
     constructor() {
         super({ key: "Game" });
@@ -64,7 +73,7 @@ export class GameScene extends Phaser.Scene {
 
         this.controls = new ControlsHandler(this);
         this.recoveryKey = this.input.keyboard.addKey(RECOVERY_KEY);
-        this.updateChrome();
+        this.setFlag("updateUi");
 
         this.recoveryKey.addListener("down", () => {
             this.triggerRecovery();
@@ -108,6 +117,7 @@ export class GameScene extends Phaser.Scene {
     update(time: number): void {
         this.updateHandleRobotState(time);
         this.updateHandleControls(time);
+        this.updateHandleChrome();
     }
 
     private updateHandleControls(time: number) {
@@ -157,6 +167,23 @@ export class GameScene extends Phaser.Scene {
         }
     }
 
+    private updateHandleChrome() {
+        if (this.flags.updateUi) {
+            this.setFlag("updateUi", false);
+            Chrome.displayState(this.controls.set, this.recoveryState);
+        }
+
+        const direction = this.world.getClosestResourceDirection(
+            this.robot.getCenter()
+        );
+        this.updateResourceDetector(direction);
+
+        if (this.messageQueue.length > 0) {
+            Chrome.showMessages(this.messageQueue);
+            this.messageQueue = [];
+        }
+    }
+
     private handleDig(digResults: DigResults, time: number) {
         if (digResults?.playerDeathReason !== PlayerDeathReason.None) {
             this.handleRobotDeath(digResults.playerDeathReason);
@@ -192,27 +219,31 @@ export class GameScene extends Phaser.Scene {
 
         if (type === InstabilityType.Collapse) {
             this.robot.addInstability();
+            this.displayMessage(MessageType.Collapse);
             if (isDifficult) {
                 // scramble all controls; if player collected a resource, then scramble close to wasd
                 this.controls.scrambleAll(
                     digResults?.triggeredCollapse ?? false
                 );
+                this.displayMessage(MessageType.LargeScramble);
             }
         } else if (type === InstabilityType.PowerDegredation) {
             const diff = this.getPowerDegredationDiff(state.powerPercentage);
             // we've hit the percent threshold, so cause some havoc
             if (diff > 0) {
                 this.robot.addInstability();
+                this.displayMessage(MessageType.PowerDegraded);
                 // for every PERCENT_POWER_INSTABILITY_THRESHOLD% of power, scramble one control
                 for (let i = 0; i < diff; i++) {
                     this.controls.scrambleSingle(isDifficult);
+                    this.displayMessage(MessageType.SmallScramble);
                 }
 
                 this.lastPowerInstabilityPercentage = state.powerPercentage;
             }
         }
 
-        this.updateChrome();
+        this.setFlag("updateUi");
     }
 
     private getPowerDegredationDiff(currentPercentage: number) {
@@ -238,10 +269,11 @@ export class GameScene extends Phaser.Scene {
             // trigger the recovery
             this.controls.revertToDefault();
             this.robot.expendRecovery();
+            this.displayMessage(MessageType.Recovered);
             this.recoveryState = RecoveryState.None;
         }
 
-        this.updateChrome();
+        this.setFlag("updateUi");
     }
 
     private handleRobotDeath(reason: PlayerDeathReason) {
@@ -251,7 +283,19 @@ export class GameScene extends Phaser.Scene {
         });
     }
 
-    private updateChrome() {
-        Chrome.displayState(this.controls.set, this.recoveryState);
+    private updateResourceDetector(result: ResourceSearchResults): void {
+        if (!result.updated) {
+            return;
+        }
+
+        Chrome.updateResourceDetector(result);
+    }
+
+    private displayMessage(type: MessageType) {
+        this.messageQueue.push(type);
+    }
+
+    private setFlag(flag: keyof GameScene["flags"], value = true) {
+        this.flags[flag] = value;
     }
 }
