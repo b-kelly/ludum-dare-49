@@ -10,13 +10,6 @@ export class GameOverScene extends Phaser.Scene {
         restartFlag: false,
     };
 
-    private get width() {
-        return this.physics.world.bounds.width;
-    }
-    private get height() {
-        return this.physics.world.bounds.height;
-    }
-
     constructor() {
         super({ key: "GameOver" });
     }

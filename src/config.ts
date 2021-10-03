@@ -25,7 +25,7 @@ export const gameConfig: Phaser.Types.Core.GameConfig = {
     },
 
     parent: "js-game-container",
-    backgroundColor: "#ffffff",
+    backgroundColor: "#1f1f29",
     autoFocus: true,
     scene: [GameScene, GameOverScene],
 };

@@ -234,7 +234,7 @@ class ChromeHandler {
             return;
         }
         let message = "";
-        message += messages[ridx(messages.length)] + "\n";
+        message += messages[ridx(messages.length)] + "\n\n";
         this.get(".js-message-box").classList.remove("message-box--empty");
         const el = this.get(".js-message");
         el.innerText = el.innerText + message;
