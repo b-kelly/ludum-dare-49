@@ -19,6 +19,7 @@ declare class ChromeHandler {
     showMessages(types: MessageType[]): void;
     hideMessage(): void;
     updateResourceDetector(results: ResourceSearchResults): void;
+    private appendMessage;
     private get;
 }
 export declare const Chrome: ChromeHandler;
