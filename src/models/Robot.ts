@@ -60,17 +60,21 @@ class Meter {
         }
 
         const timeDelta = currentTime - this.lastUpdateTime;
-        const powerDegredation = Math.floor(
+        const degredationAmount = Math.floor(
             timeDelta / POWER_DEGREDATION_RATE_MS
         );
-        const powerShouldDegrade = powerDegredation > 0;
+        const newValue = Math.max(
+            this._value - degredationAmount - modifier,
+            0
+        );
+        const meterShouldDegrade =
+            degredationAmount > 0 && newValue !== this._value;
 
-        if (powerShouldDegrade) {
-            const newPowerLevel = this._value - powerDegredation - modifier;
-            this.update(Math.max(newPowerLevel, 0), currentTime);
+        if (meterShouldDegrade) {
+            this.update(newValue, currentTime);
         }
 
-        return powerShouldDegrade;
+        return meterShouldDegrade;
     }
 }
 

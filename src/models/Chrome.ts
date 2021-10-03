@@ -117,31 +117,15 @@ class ChromeHandler {
     }
 
     updateMeters(state: PlayerState) {
-        let el = this.get(".js-power-meter");
-        el.style.setProperty(
-            "--percent-filled",
-            `${Math.max(0, state.powerPercentage)}%`
-        );
+        const update = (selector: string, value: number) => {
+            const el = this.get(selector);
+            el.style.setProperty("--percent-filled", `${Math.max(0, value)}%`);
+            el.classList.toggle("meter--charged", value >= 100);
+        };
 
-        el = this.get(".js-recover-meter");
-        el.style.setProperty(
-            "--percent-filled",
-            `${Math.max(0, state.recoveryPercentage)}%`
-        );
-        el.parentElement.classList.toggle(
-            "meter--charged",
-            state.recoveryPercentage >= 100
-        );
-
-        el = this.get(".js-instability-meter");
-        el.style.setProperty(
-            "--percent-filled",
-            `${Math.max(0, state.totalInstabilityPercentage)}%`
-        );
-        el.parentElement.classList.toggle(
-            "meter--charged",
-            state.totalInstabilityPercentage >= 100
-        );
+        update(".js-power-meter", state.powerPercentage);
+        update(".js-recover-meter", state.recoveryPercentage);
+        update(".js-instability-meter", state.totalInstabilityPercentage);
     }
 
     showMessages(types: MessageType[]) {

@@ -49,7 +49,7 @@ canvas {
     flex-grow: 1;
 }
 
-.control.stacked {
+.control.control--stacked {
     flex-direction: column;
 }
 
@@ -61,8 +61,19 @@ canvas {
 
 .meter {
     width: 100%;
-    height: 10px;
-    background-color: black;
+    background-color: gray;
+    border-radius: 3px;
+    position: relative;
+    height: 4px;
+    border-radius: 3px;
+}
+
+.meter::after {
+    content: "";
+    display: block;
+    height: 100%;
+    width: var(--percent-filled, 0%);
+    background-color: currentColor;
 }
 
 .meter--instability {
@@ -78,13 +89,7 @@ canvas {
 }
 
 .meter--charged {
-    outline: 1px solid red;
-}
-
-.meter__bar {
-    width: var(--percent-filled, 0%);
-    height: 10px;
-    background-color: currentColor;
+    border: 1px solid red;
 }
 
 .resource-direction {

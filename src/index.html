@@ -10,7 +10,7 @@
     <div class="chrome-container">
         <div class="controls-container">
             <div class="row">
-                <div class="control stacked">
+                <div class="control control--stacked">
                     <i class="icon icon-caret-up"></i>
                     <div class="js-move-control-up">W</div>
                 </div>
@@ -26,7 +26,7 @@
                 </div>
             </div>
             <div class="row">
-                <div class="control stacked">
+                <div class="control control--stacked">
                     <div class="js-move-control-down">S</div>
                     <i class="icon icon-caret-down"></i>
                 </div>
@@ -41,24 +41,21 @@
         <div class="chrome-center">
             <div id="js-game-container" class="game-container"></div>
             <canvas class="hide-debug js-map"></canvas>
-            <div class="js-message"></div>
+            <div class="message-box">
+                <div class="message-box__message js-message"></div>
+            </div>
         </div>
         <div class="metadata-container">
 
-            Instability:
-            <div class="meter meter--instability">
-                <div class="meter__bar js-instability-meter" style="--percent-filled: 0%"></div>
-            </div>
+            
+            <div>Instability</div>
+            <div class="meter meter--instability js-instability-meter" style="--percent-filled: 0%"></div>
 
-            Power:
-            <div class="meter meter--power">
-                <div class="meter__bar js-power-meter" style="--percent-filled: 100%"></div>
-            </div>
+            <div>Battery</div>
+            <div class="meter meter--power js-power-meter" style="--percent-filled: 100%"></div>
 
-            Recover: <span class="js-recover-state"></span>
-            <div class="meter meter--recovery">
-                <div class="meter__bar js-recover-meter" style="--percent-filled: 0%"></div>
-            </div>
+            <div>Recover: <span class="js-recover-state"></span></div>
+            <div class="meter meter--recovery js-recover-meter" style="--percent-filled: 0%"></div>
 
             <div class="resource-direction resource-direction--none js-resource-direction">
                 <div class="resource-blip"></div>
