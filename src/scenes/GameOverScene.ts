@@ -10,6 +10,13 @@ export class GameOverScene extends Phaser.Scene {
         restartFlag: false,
     };
 
+    private get width() {
+        return this.physics.world.bounds.width;
+    }
+    private get height() {
+        return this.physics.world.bounds.height;
+    }
+
     constructor() {
         super({ key: "GameOver" });
     }
@@ -31,16 +38,11 @@ export class GameOverScene extends Phaser.Scene {
     create(): void {
         this.sound.play(Asset[Asset.Death]);
         this.cameras.main.setBackgroundColor(0x000000);
-        this.add.text(
+        this.continueText = this.add.text(
             0,
             0,
-            `${this.reason}\nGame Over\nResources collected: ${this.score}`,
-            {}
+            `${this.reason}\nGame Over\nResources collected: ${this.score}`
         );
-
-        this.continueText = this.add
-            .text(0, 0, `Press any key to continue`, {})
-            .setVisible(false);
     }
 
     update(time: number): void {
@@ -62,7 +64,10 @@ export class GameOverScene extends Phaser.Scene {
             });
 
             // show the continue text
-            this.continueText.setVisible(true);
+            this.continueText.setText([
+                this.continueText.text,
+                `Press any key to continue`,
+            ]);
         }
 
         if (this.state.restartFlag) {
