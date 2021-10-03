@@ -99,6 +99,7 @@ export class GameScene extends Phaser.Scene {
             Asset[Asset.DifficultyRaised],
             "assets/difficulty-raised.wav"
         );
+        this.load.audio(Asset[Asset.GameBackground], "assets/background.wav");
     }
 
     create(): void {
@@ -147,6 +148,10 @@ export class GameScene extends Phaser.Scene {
             TILE_WIDTH / 2,
             TILE_WIDTH / 2
         );
+
+        this.sound.play(Asset[Asset.GameBackground], {
+            loop: true,
+        });
     }
 
     update(time: number): void {

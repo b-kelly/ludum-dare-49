@@ -14,6 +14,9 @@ export enum Asset {
     Death,
     Dig,
     DifficultyRaised,
+
+    // music
+    GameBackground,
 }
 
 export enum MoveDirection {
