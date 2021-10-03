@@ -1,6 +1,18 @@
 export enum Asset {
+    // images
     Robot,
     Terrain,
+
+    // sounds
+    Collapse,
+    PowerDegraded,
+    SmallScramble,
+    LargeScramble,
+    RecoveryAvailable,
+    Recovered,
+    ResourceAcquired,
+    Death,
+    Dig,
 }
 
 export enum MoveDirection {

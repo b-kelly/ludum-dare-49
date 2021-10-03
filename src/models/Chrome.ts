@@ -16,6 +16,7 @@ export enum MessageType {
     LargeScramble,
     RecoveryAvailable,
     Recovered,
+    ResourceAcquired,
 }
 
 const MESSAGES: Record<MessageType, string[]> = {
@@ -26,6 +27,7 @@ const MESSAGES: Record<MessageType, string[]> = {
     [MessageType.LargeScramble]: ["Large scramble"],
     [MessageType.RecoveryAvailable]: ["Recovery ready!"],
     [MessageType.Recovered]: ["Recovered!"],
+    [MessageType.ResourceAcquired]: ["Pickup!"],
 };
 
 const MESSAGE_TIMEOUT_MS = 5000;

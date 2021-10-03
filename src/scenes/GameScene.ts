@@ -64,6 +64,29 @@ export class GameScene extends Phaser.Scene {
             frameWidth: TILE_WIDTH,
             frameHeight: TILE_WIDTH,
         });
+        this.load.audio(Asset[Asset.Collapse], "assets/collapse.wav");
+        this.load.audio(
+            Asset[Asset.PowerDegraded],
+            "assets/power-degraded.wav"
+        );
+        this.load.audio(
+            Asset[Asset.SmallScramble],
+            "assets/small-scramble.wav"
+        );
+        this.load.audio(
+            Asset[Asset.LargeScramble],
+            "assets/large-scramble.wav"
+        );
+        this.load.audio(
+            Asset[Asset.RecoveryAvailable],
+            "assets/recovery-available.wav"
+        );
+        this.load.audio(Asset[Asset.Recovered], "assets/recovered.wav");
+        this.load.audio(
+            Asset[Asset.ResourceAcquired],
+            "assets/resource-acquired.wav"
+        );
+        this.load.audio(Asset[Asset.Dig], "assets/dig.wav");
     }
 
     create(): void {
@@ -134,6 +157,7 @@ export class GameScene extends Phaser.Scene {
         }
 
         if (!this.currentlyDigging && this.controls.set.dig.isDown) {
+            this.sound.play(Asset[Asset.Dig]);
             const digResults = this.world.dig(this.robot.pState);
             this.handleDig(digResults, time);
         }
@@ -206,6 +230,7 @@ export class GameScene extends Phaser.Scene {
             this.robot.addResource(time);
             this.controls.revertToDefault();
             Chrome.updateMeters(state);
+            this.displayMessage(MessageType.ResourceAcquired);
         }
     }
 
@@ -295,6 +320,7 @@ export class GameScene extends Phaser.Scene {
     }
 
     private displayMessage(type: MessageType) {
+        this.sound.play(MessageType[type]);
         this.messageQueue.push(type);
     }
 
