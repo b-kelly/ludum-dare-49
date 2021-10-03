@@ -2,6 +2,7 @@ export declare class GameOverScene extends Phaser.Scene {
     private score;
     private reason;
     constructor();
+    preload(): void;
     init(data: {
         score: number;
         reason: string;

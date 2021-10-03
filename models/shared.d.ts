@@ -1,6 +1,15 @@
 export declare enum Asset {
     Robot = 0,
-    Terrain = 1
+    Terrain = 1,
+    Collapse = 2,
+    PowerDegraded = 3,
+    SmallScramble = 4,
+    LargeScramble = 5,
+    RecoveryAvailable = 6,
+    Recovered = 7,
+    ResourceAcquired = 8,
+    Death = 9,
+    Dig = 10
 }
 export declare enum MoveDirection {
     Stop = 0,
