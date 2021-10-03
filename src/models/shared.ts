@@ -27,7 +27,7 @@ export enum RecoveryState {
 const VALID_KEYCODE_RANGES = {
     Alpha: [65, 90],
     Numeric: [48, 57],
-    Numpad: [96, 105],
+    //Numpad: [96, 105],
     Space: [32, 32],
     Arrow: [37, 40],
     Symbols: [186, 222],
