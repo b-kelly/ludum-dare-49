@@ -10,7 +10,8 @@ export declare enum Asset {
     ResourceAcquired = 8,
     Death = 9,
     Dig = 10,
-    DifficultyRaised = 11
+    DifficultyRaised = 11,
+    GameBackground = 12
 }
 export declare enum MoveDirection {
     Stop = 0,
