@@ -125,7 +125,7 @@ export class Robot extends Phaser.GameObjects.Sprite {
         this.body.setBounce(0, 0);
         this.body.setCollideWorldBounds(true);
         // keep the corners from catching on other corners
-        this.body.setSize(TILE_WIDTH - 2, TILE_WIDTH - 2, true);
+        this.body.setSize(TILE_WIDTH - 4, TILE_WIDTH - 4, true);
     }
 
     setDirection(command: MoveDirection): void {
