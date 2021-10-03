@@ -328,6 +328,7 @@ export class GameScene extends Phaser.Scene {
     }
 
     private handleRobotDeath(reason: PlayerDeathReason) {
+        this.sound.stopAll();
         this.scene.start("GameOver", {
             reason: PlayerDeathReason[reason],
             score: this.robot.pState.resourceCount,

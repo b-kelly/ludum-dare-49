@@ -238,6 +238,7 @@ class ChromeHandler {
         this.get(".js-message-box").classList.remove("message-box--empty");
         const el = this.get(".js-message");
         el.innerText = el.innerText + message;
+        el.scrollTo(0, el.scrollHeight);
     }
 
     private get<T extends HTMLElement = HTMLElement>(selector: string): T {
