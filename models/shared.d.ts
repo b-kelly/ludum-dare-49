@@ -9,7 +9,8 @@ export declare enum Asset {
     Recovered = 7,
     ResourceAcquired = 8,
     Death = 9,
-    Dig = 10
+    Dig = 10,
+    DifficultyRaised = 11
 }
 export declare enum MoveDirection {
     Stop = 0,

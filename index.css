@@ -532,7 +532,7 @@ canvas {
 }
 
 .resource-direction--none .resource-blip {
-    display: none;
+    background-color: gray;
 }
 
 .resource-direction--n .resource-blip {

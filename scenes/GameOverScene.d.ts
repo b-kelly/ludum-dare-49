@@ -1,6 +1,8 @@
 export declare class GameOverScene extends Phaser.Scene {
     private score;
     private reason;
+    private continueText;
+    private state;
     constructor();
     preload(): void;
     init(data: {
@@ -8,4 +10,5 @@ export declare class GameOverScene extends Phaser.Scene {
         reason: string;
     }): void;
     create(): void;
+    update(time: number): void;
 }
