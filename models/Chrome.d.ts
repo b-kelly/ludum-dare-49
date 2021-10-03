@@ -1,5 +1,6 @@
 import { Cave } from "./Cave";
 import { PlayerState, RecoveryState, SetControls } from "./shared";
+import { ResourceSearchResults } from "./World";
 export declare enum MessageType {
     None = 0,
     Collapse = 1,
@@ -15,8 +16,9 @@ declare class ChromeHandler {
     displayMap(cave: Cave): void;
     displayState(controls: SetControls, recoverState: RecoveryState): void;
     updateMeters(state: PlayerState): void;
-    showMessage(type: MessageType): void;
+    showMessages(types: MessageType[]): void;
     hideMessage(): void;
+    updateResourceDetector(results: ResourceSearchResults): void;
     private get;
 }
 export declare const Chrome: ChromeHandler;
