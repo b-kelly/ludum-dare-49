@@ -8,7 +8,7 @@
 </head>
 <body>
     <div class="chrome-container">
-        <div class="controls-container">
+        <div class="container container--controls">
             <div class="row">
                 <div class="control control--stacked">
                     <i class="icon icon-caret-up"></i>
@@ -38,24 +38,28 @@
                 </div>
             </div>
         </div>
-        <div class="chrome-center">
+        <div class="container">
             <div id="js-game-container" class="game-container"></div>
             <canvas class="hide-debug js-map"></canvas>
-            <div class="message-box">
-                <div class="message-box__message js-message"></div>
+            <div class="message-box message-box--empty js-message-box">
+                <div class="message-box__image"></div>
+                <div class="message-box__message js-message">
+                </div>
             </div>
         </div>
-        <div class="metadata-container">
-
-            
-            <div>Instability</div>
-            <div class="meter meter--instability js-instability-meter" style="--percent-filled: 0%"></div>
-
-            <div>Battery</div>
-            <div class="meter meter--power js-power-meter" style="--percent-filled: 100%"></div>
-
-            <div>Recover: <span class="js-recover-state"></span></div>
-            <div class="meter meter--recovery js-recover-meter" style="--percent-filled: 0%"></div>
+        <div class="container">
+            <div class="indicator">
+                <div>Instability</div>
+                <div class="meter meter--instability js-instability-meter" style="--percent-filled: 0%"></div>
+            </div>
+            <div class="indicator">
+                <div>Battery</div>
+                <div class="meter meter--power js-power-meter" style="--percent-filled: 100%"></div>
+            </div>
+            <div class="indicator">
+                <div>Recover <span class="js-recover-state"></span></div>
+                <div class="meter meter--recovery js-recover-meter" style="--percent-filled: 0%"></div>
+            </div>
 
             <div class="resource-direction resource-direction--none js-resource-direction">
                 <div class="resource-blip"></div>

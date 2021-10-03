@@ -147,6 +147,7 @@ class ChromeHandler {
     hideMessage() {
         window.clearTimeout(this.messageTimeoutId);
         this.messageTimeoutId = -1;
+        this.get(".js-message-box").classList.add("message-box--empty");
         this.get(".js-message").innerText = "";
     }
 
@@ -191,6 +192,7 @@ class ChromeHandler {
         }
         let message = "";
         message += messages[ridx(messages.length)] + "\n";
+        this.get(".js-message-box").classList.remove("message-box--empty");
         const el = this.get(".js-message");
         el.innerText = el.innerText + message;
     }

@@ -24,20 +24,24 @@ canvas {
 
 .game-container {
     text-align: center;
-    min-width: 512px;
+    width: 512px;
+    height: 512px;
+    font-size: 0;
 }
 
 .chrome-container {
     display: flex;
 }
 
-.chrome-container > div {
+.container {
+    padding: 16px;
     flex-basis: calc(100% / 3);
+    position: relative;
 }
 
 /* CONTROLS */
 
-.controls-container .row {
+.container--controls .row {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -57,7 +61,43 @@ canvas {
     justify-content: flex-end;
 }
 
+/* MESSAGES */
+.message-box {
+    position: absolute;
+    bottom: 16px;
+    width: 80%;
+    height: 128px;
+    background-color: rgba(66, 0, 133, 0.8);
+    backdrop-filter: blur(2px);
+    display: flex;
+    padding: 8px;
+}
+
+.message-box--empty {
+    display: none;
+}
+
+.message-box__message {
+    height: 100%;
+    flex-grow: 1;
+    overflow: auto;
+    background-color: white;
+    border-radius: 3px;
+}
+
+.message-box__image {
+    height: 100%;
+    aspect-ratio: 1/1;
+    background-color: black;
+    border-radius: 3px;
+    margin-right: 8px;
+}
+
 /* METADATA */
+
+.indicator {
+    margin-bottom: 24px;
+}
 
 .meter {
     width: 100%;
