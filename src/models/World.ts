@@ -28,7 +28,11 @@ const EMPTY_RESULTS = (): DigResults => ({
 });
 
 const MAX_STABILITY = 8;
-const INSTABILITY_MODIFIER = 0.5; // each point of instability has a 50% chance of triggering collapse
+// each point of instability has a 25-50% chance of triggering collapse
+const INSTABILITY_MODIFIER = {
+    normal: 0.25,
+    difficult: 0.5,
+};
 
 export class World extends Phaser.Tilemaps.Tilemap {
     private mostRecentSearch: {
@@ -101,7 +105,11 @@ export class World extends Phaser.Tilemaps.Tilemap {
         }
 
         // process side effects
-        const results = this.digSideEffects(targetTile, originTile);
+        const results = this.digSideEffects(
+            targetTile,
+            originTile,
+            state.isDifficult
+        );
 
         // set the tile to be empty
         this.fill(CellState.Open, newTileCoords.x, newTileCoords.y, 1, 1);
@@ -178,7 +186,8 @@ export class World extends Phaser.Tilemaps.Tilemap {
 
     private digSideEffects(
         target: Phaser.Tilemaps.Tile,
-        origin: Phaser.Tilemaps.Tile
+        origin: Phaser.Tilemaps.Tile,
+        increaseDifficulty: boolean
     ): DigResults {
         const results = EMPTY_RESULTS();
         results.collectedResource = target.index === CellState.Resource;
@@ -190,10 +199,13 @@ export class World extends Phaser.Tilemaps.Tilemap {
             return results;
         }
 
+        const mod = increaseDifficulty
+            ? INSTABILITY_MODIFIER.difficult
+            : INSTABILITY_MODIFIER.normal;
+
         // the lower the stability of the tile, the higher the chance of a collapse
         const triggeredCollapse =
-            Math.floor(Math.random() * (instability * INSTABILITY_MODIFIER)) >
-            0;
+            Math.floor(Math.random() * (instability * mod)) > 0;
         if (triggeredCollapse) {
             // CAAAAAVE IIIINNNNN!
             const collapse = this.collapseFromTile(target, instability, origin);
