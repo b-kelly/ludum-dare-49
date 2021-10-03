@@ -53,7 +53,14 @@ export class GameScene extends Phaser.Scene {
     }
 
     init(): void {
-        // TODO
+        this.currentlyDigging = false;
+        this.lastPowerInstabilityPercentage = 0;
+        this.recoveryState = RecoveryState.None;
+        this.messageQueue = [];
+        this.flags = {
+            updateUi: false,
+            showedDifficultyIncreaseWarning: false,
+        };
     }
 
     preload(): void {

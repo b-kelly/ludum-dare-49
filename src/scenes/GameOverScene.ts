@@ -3,10 +3,12 @@ import { Asset } from "../models/shared";
 export class GameOverScene extends Phaser.Scene {
     private score = 0;
     private reason: string;
-    private showTime: number;
-    private startProcessingFlag = false;
-    private restartFlag = false;
     private continueText: Phaser.GameObjects.Text;
+    private state = {
+        showTime: 0,
+        startProcessingFlag: false,
+        restartFlag: false,
+    };
 
     constructor() {
         super({ key: "GameOver" });
@@ -19,6 +21,11 @@ export class GameOverScene extends Phaser.Scene {
     init(data: { score: number; reason: string }): void {
         this.score = data.score || 0;
         this.reason = data.reason || "";
+        this.state = {
+            showTime: 0,
+            startProcessingFlag: false,
+            restartFlag: false,
+        };
     }
 
     create(): void {
@@ -37,28 +44,28 @@ export class GameOverScene extends Phaser.Scene {
     }
 
     update(time: number): void {
-        if (!this.showTime) {
-            this.showTime = time;
+        if (!this.state.showTime) {
+            this.state.showTime = time;
             return;
         }
 
         // wait a bit for the player to absorb what happened
-        if (time - this.showTime < 5000) {
+        if (time - this.state.showTime < 5000) {
             return;
         }
 
-        if (!this.startProcessingFlag) {
-            this.startProcessingFlag = true;
+        if (!this.state.startProcessingFlag) {
+            this.state.startProcessingFlag = true;
 
             this.input.keyboard.once("keydown", () => {
-                this.restartFlag = this.startProcessingFlag;
+                this.state.restartFlag = this.state.startProcessingFlag;
             });
 
             // show the continue text
             this.continueText.setVisible(true);
         }
 
-        if (this.restartFlag) {
+        if (this.state.restartFlag) {
             this.scene.start("Game");
         }
     }
