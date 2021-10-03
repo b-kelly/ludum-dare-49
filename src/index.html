@@ -8,19 +8,42 @@
 </head>
 <body>
     <div class="chrome-container">
-        <div class="chrome-left">
-            <div class="js-move-control-up"></div>
-            <div class="js-move-control-left"></div>
-            <div class="js-move-control-right"></div>
-            <div class="js-move-control-down"></div>
-            <div class="js-move-control-dig"></div>
+        <div class="controls-container">
+            <div class="row">
+                <div class="control stacked">
+                    <i class="icon icon-caret-up"></i>
+                    <div class="js-move-control-up">W</div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="control">
+                    <i class="icon icon-caret-left"></i>
+                    <div class="js-move-control-left">A</div>
+                </div>
+                <div class="control">
+                    <div class="js-move-control-right">D</div>
+                    <i class="icon icon-caret-right"></i>
+                </div>
+            </div>
+            <div class="row">
+                <div class="control stacked">
+                    <div class="js-move-control-down">S</div>
+                    <i class="icon icon-caret-down"></i>
+                </div>
+            </div>
+            <div class="row">
+                <div class="control">
+                    <div>Dig</div>
+                    <div class="js-move-control-dig">SPACE</div>
+                </div>
+            </div>
         </div>
         <div class="chrome-center">
             <div id="js-game-container" class="game-container"></div>
             <canvas class="hide-debug js-map"></canvas>
             <div class="js-message"></div>
         </div>
-        <div class="chrome-right">
+        <div class="metadata-container">
 
             Instability:
             <div class="meter meter--instability">

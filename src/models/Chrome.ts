@@ -99,7 +99,7 @@ class ChromeHandler {
 
             const keyName =
                 this.reverseKeycodeMapping[controls[control].keyCode];
-            element.innerText = `${control}: ${keyName}`;
+            element.innerText = keyName;
         });
 
         let recoverText: string;

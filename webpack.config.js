@@ -3,6 +3,7 @@ const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const svgToMiniDataURI = require("mini-svg-data-uri");
 const webpack = require("webpack");
 
 module.exports = (_, argv) => {
@@ -28,6 +29,16 @@ module.exports = (_, argv) => {
                 {
                     test: /\.css$/,
                     use: [MiniCssExtractPlugin.loader, "css-loader"],
+                },
+                {
+                    test: /\.svg$/,
+                    type: "asset/inline",
+                    generator: {
+                        dataUrl: (content) => {
+                            content = content.toString();
+                            return svgToMiniDataURI(content);
+                        },
+                    },
                 },
             ],
         },
