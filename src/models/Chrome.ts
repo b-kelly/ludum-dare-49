@@ -22,14 +22,53 @@ export enum MessageType {
 
 const MESSAGES: Record<MessageType, string[]> = {
     [MessageType.None]: [],
-    [MessageType.Collapse]: ["Collapse!"],
-    [MessageType.PowerDegraded]: ["Short circuit!"],
-    [MessageType.SmallScramble]: ["Small scramble"],
-    [MessageType.LargeScramble]: ["Large scramble"],
-    [MessageType.RecoveryAvailable]: ["Recovery ready!"],
-    [MessageType.Recovered]: ["Recovered!"],
-    [MessageType.ResourceAcquired]: ["Pickup!"],
-    [MessageType.DifficultyRaised]: ["Difficulty raised!"],
+    [MessageType.Collapse]: [
+        "Watch out for falling rocks!",
+        "Yikes! That one almost got me.",
+        "Assessing damages... None.",
+        "Cave in!",
+    ],
+    [MessageType.PowerDegraded]: [
+        "Battery starting to run low...",
+        "Oof. Getting tired over here.",
+        "I could use some juice.",
+        "Think you could steer me towards an outlet?",
+    ],
+    [MessageType.SmallScramble]: [
+        "BzzZzt! Rerouting movement to auxillary control...",
+        "[SHORT CIRCUIT DETECTED]",
+        "*Zap* Rerouting controls to backup...",
+        "Just lost another control. Getting you back online now.",
+    ],
+    [MessageType.LargeScramble]: [
+        "*POP* Do you smell smoke?",
+        "AH! MY HARDWARE IS ON FIRE!",
+        "oU4LygiU2p*N. rQ%!6EKvTZTi?",
+        "BzzzZZZzzZzzZtTt. Oh goodness, that can't be good.",
+    ],
+    [MessageType.RecoveryAvailable]: [
+        "Ready to execute self diagnostics!",
+        "[STABILITY PROTOCOL ONLINE]",
+        "Let's get me all fixed up.",
+    ],
+    [MessageType.Recovered]: [
+        "[ALL SYSTEMS NOMINAL]",
+        "Got it! I'm back to full functionality.",
+    ],
+    [MessageType.ResourceAcquired]: [
+        "Oooh, shiny!",
+        "I found a new resource!",
+        "Battery levels rising.",
+        "I wonder what this is worth...",
+    ],
+    [MessageType.DifficultyRaised]: [
+        "Uh oh, it's starting to get a bit shaky in here.",
+        "Maybe we should think about high-tailing it out of here?",
+        "Do we have an exit plan?",
+        "I'm getting a bit unstable here.",
+        "Is it just me, or does this whole place look like it's about to fall apart?",
+        "I don't know how much longer my circuits can take this...",
+    ],
 };
 
 const MESSAGE_TIMEOUT_MS = 5000;
