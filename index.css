@@ -372,19 +372,24 @@ canvas {
 
 .game-container {
     text-align: center;
+    width: 512px;
+    height: 512px;
+    font-size: 0;
 }
 
 .chrome-container {
     display: flex;
 }
 
-.chrome-container > div {
+.container {
+    padding: 16px;
     flex-basis: calc(100% / 3);
+    position: relative;
 }
 
 /* CONTROLS */
 
-.controls-container .row {
+.container--controls .row {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -396,7 +401,7 @@ canvas {
     flex-grow: 1;
 }
 
-.control.stacked {
+.control.control--stacked {
     flex-direction: column;
 }
 
@@ -404,12 +409,59 @@ canvas {
     justify-content: flex-end;
 }
 
+/* MESSAGES */
+.message-box {
+    position: absolute;
+    bottom: 16px;
+    width: 80%;
+    height: 128px;
+    background-color: rgba(66, 0, 133, 0.8);
+    backdrop-filter: blur(2px);
+    display: flex;
+    padding: 8px;
+}
+
+.message-box--empty {
+    display: none;
+}
+
+.message-box__message {
+    height: 100%;
+    flex-grow: 1;
+    overflow: auto;
+    background-color: white;
+    border-radius: 3px;
+}
+
+.message-box__image {
+    height: 100%;
+    aspect-ratio: 1/1;
+    background-color: black;
+    border-radius: 3px;
+    margin-right: 8px;
+}
+
 /* METADATA */
+
+.indicator {
+    margin-bottom: 24px;
+}
 
 .meter {
     width: 100%;
-    height: 10px;
-    background-color: black;
+    background-color: gray;
+    border-radius: 3px;
+    position: relative;
+    height: 4px;
+    border-radius: 3px;
+}
+
+.meter::after {
+    content: "";
+    display: block;
+    height: 100%;
+    width: var(--percent-filled, 0%);
+    background-color: currentColor;
 }
 
 .meter--instability {
@@ -425,13 +477,78 @@ canvas {
 }
 
 .meter--charged {
-    outline: 1px solid red;
+    border: 1px solid red;
 }
 
-.meter__bar {
-    width: var(--percent-filled, 0%);
+.resource-direction {
+    display: block;
+    width: 100%;
+    aspect-ratio: 1/1;
+    background: green;
+    border-radius: 100%;
+    position: relative;
+}
+
+.resource-direction::before,
+.resource-direction::after {
+    content: "";
+    width: 4px;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: black;
+    display: block;
+    z-index: 25;
+}
+
+.resource-direction::after {
+    top: 50%;
+    left: 0;
+    width: 100%;
+    height: 5px;
+    transform: translateY(-50%);
+}
+
+.resource-blip {
+    --none: 50%;
+    --distance: 65%;
+
+    position: absolute;
+    transform: translate(-50%, -50%);
+    width: 10px;
     height: 10px;
-    background-color: currentColor;
+    top: var(--none);
+    left: var(--none);
+    background-color: red;
+    z-index: 50;
+    border-radius: 100%;
+}
+
+.resource-direction--far .resource-blip {
+    --distance: 80%;
+}
+
+.resource-direction--none .resource-blip {
+    display: none;
+}
+
+.resource-direction--n .resource-blip {
+    top: calc(100% - var(--distance));
+}
+
+.resource-direction--e .resource-blip {
+    left: var(--distance);
+}
+
+.resource-direction--s .resource-blip {
+    top: var(--distance);
+}
+
+.resource-direction--w .resource-blip {
+    left: calc(100% - var(--distance));
 }
 
 /* ICONS */

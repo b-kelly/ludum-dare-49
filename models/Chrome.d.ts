@@ -7,7 +7,8 @@ export declare enum MessageType {
     PowerDegraded = 2,
     SmallScramble = 3,
     LargeScramble = 4,
-    Recovered = 5
+    RecoveryAvailable = 5,
+    Recovered = 6
 }
 declare class ChromeHandler {
     private reverseKeycodeMapping;
