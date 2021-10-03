@@ -348,6 +348,16 @@ template {
   display: none;
 }
 
+:root {
+    --red: #dd1c1a;
+    --purple: #2c2a4a;
+    --blue: #01baef;
+    --yellow: #efa00b;
+    --green: #4b6858;
+    --gray: #808080;
+    --black: #1f1f29;
+}
+
 * {
     box-sizing: border-box;
 }
@@ -358,10 +368,8 @@ body {
     padding: 0;
     height: 100%;
     width: 100%;
-}
-
-canvas {
-    border: 1px solid hotpink;
+    background-color: var(--black);
+    color: white;
 }
 
 .hide-debug {
@@ -415,7 +423,7 @@ canvas {
     bottom: 16px;
     width: 80%;
     height: 128px;
-    background-color: rgba(66, 0, 133, 0.8);
+    background-color: var(--purple);
     backdrop-filter: blur(2px);
     display: flex;
     padding: 8px;
@@ -431,12 +439,15 @@ canvas {
     overflow: auto;
     background-color: white;
     border-radius: 3px;
+    color: var(--black);
+    padding: 4px;
+    font-size: 14px;
 }
 
 .message-box__image {
     height: 100%;
     aspect-ratio: 1/1;
-    background-color: black;
+    background-color: var(--black);
     border-radius: 3px;
     margin-right: 8px;
 }
@@ -449,11 +460,12 @@ canvas {
 
 .meter {
     width: 100%;
-    background-color: gray;
+    background-color: var(--gray);
     border-radius: 3px;
     position: relative;
     height: 4px;
     border-radius: 3px;
+    transition: box-shadow 0.2s ease-in-out;
 }
 
 .meter::after {
@@ -462,29 +474,30 @@ canvas {
     height: 100%;
     width: var(--percent-filled, 0%);
     background-color: currentColor;
+    transition: width 0.1s;
 }
 
 .meter--instability {
-    color: red;
+    color: var(--red);
 }
 
 .meter--power {
-    color: blue;
+    color: var(--blue);
 }
 
 .meter--recovery {
-    color: yellow;
+    color: var(--yellow);
 }
 
 .meter--charged {
-    border: 1px solid red;
+    box-shadow: 0 0 3px 1px currentColor;
 }
 
 .resource-direction {
     display: block;
     width: 100%;
     aspect-ratio: 1/1;
-    background: green;
+    background: var(--green);
     border-radius: 100%;
     position: relative;
 }
@@ -499,7 +512,7 @@ canvas {
     bottom: 100%;
     left: 50%;
     transform: translateX(-50%);
-    background: black;
+    background: var(--black);
     display: block;
     z-index: 25;
 }
@@ -522,7 +535,7 @@ canvas {
     height: 10px;
     top: var(--none);
     left: var(--none);
-    background-color: red;
+    background-color: var(--red);
     z-index: 50;
     border-radius: 100%;
 }
@@ -532,7 +545,7 @@ canvas {
 }
 
 .resource-direction--none .resource-blip {
-    background-color: gray;
+    background-color: var(--gray);
 }
 
 .resource-direction--n .resource-blip {
