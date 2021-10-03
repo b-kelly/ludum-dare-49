@@ -34,10 +34,6 @@ export class GameOverScene extends Phaser.Scene {
         this.continueText = this.add
             .text(0, 0, `Press any key to continue`, {})
             .setVisible(false);
-
-        this.input.keyboard.once("keydown", () => {
-            this.restartFlag = this.startProcessingFlag;
-        });
     }
 
     update(time: number): void {
@@ -51,10 +47,16 @@ export class GameOverScene extends Phaser.Scene {
             return;
         }
 
-        this.startProcessingFlag = true;
+        if (!this.startProcessingFlag) {
+            this.startProcessingFlag = true;
 
-        // show the continue text
-        this.continueText.setVisible(true);
+            this.input.keyboard.once("keydown", () => {
+                this.restartFlag = this.startProcessingFlag;
+            });
+
+            // show the continue text
+            this.continueText.setVisible(true);
+        }
 
         if (this.restartFlag) {
             this.scene.start("Game");
