@@ -172,11 +172,14 @@ export class Robot extends Phaser.GameObjects.Sprite {
     }
 
     degradePower(currentTime: number): boolean {
-        return this.powerMeter.degrade(currentTime, this.resourceCount);
+        return this.powerMeter.degrade(
+            currentTime,
+            Math.floor(this.resourceCount / 2)
+        );
     }
 
     chargeRecovery(currentTime: number): boolean {
-        return this.recoveryMeter.degrade(currentTime, this.resourceCount);
+        return this.recoveryMeter.degrade(currentTime);
     }
 
     expendRecovery(): void {
